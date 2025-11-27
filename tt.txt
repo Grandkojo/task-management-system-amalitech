@@ -1,0 +1,30 @@
+#feature 1
+create project
+view project with id
+filter by type
+display project specific attributes
+
+#feature 2
+add to specific project
+assign task status(Pending, In-progress, completed)
+view all tasks per project with progress details
+update or delete tasks
+validate inputs to prevent invalid task status or duplicate task names
+
+#feature 3
+create and manage system users
+assign users to projects or tasks
+enforce role-based access(Admin can delete/update, Regular can view/add)
+Automatically generate unique user IDs
+
+#feature 4
+calculate and display completion averages per project
+generate status reports ("Project Alpha is 75% complete")
+display task statistics: total, completed, and pending counts
+show per-user performance summaries (future expansion)
+
+#feature 5
+display a clear main menu and sub-menus for operations
+validate all user inputs(numbers, text, IDs).
+provide formatted outputs with clear sections and alignment
+support graceful exit and return navigation

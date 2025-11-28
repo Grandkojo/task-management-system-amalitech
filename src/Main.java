@@ -1,7 +1,9 @@
 import java.util.Scanner;
 import models.HardwareProject;
-import models.Project;
 import models.SoftwareProject;
+import models.Task;
+import services.ProjectService;
+import utils.ConsoleMenu;
 
 public class Main {
 
@@ -16,6 +18,18 @@ public class Main {
         HardwareProject temperatureRecorder = new HardwareProject("Temperature Recorder", "Record the temperature of the day at 1 pm", 10000, 3);    
         SoftwareProject clockIt = new SoftwareProject("Clock IT", "Record what employees do during the working day", 7000, 7);
         HardwareProject automaticDoor = new HardwareProject("Smart Door", "Automatically record employees who enter offices", 12000, 10);
+
+        //create tasks under project
+        Task alphaTrackerTask1 = new Task("Set up DB", Task.Status.IN_PROGRESS, alphaTracker.getId());
+        Task alphaTrackerTask2 = new Task("Create abstract tracking class", Task.Status.COMPLETED, alphaTracker.getId());
+
+        Task temperatureRecorderTask1 = new Task("Design Thermometer", Task.Status.PENDING, temperatureRecorder.getId());
+
+        Task clockItTask1 = new Task("Create date filter", Task.Status.IN_PROGRESS, clockIt.getId());
+
+        Task automaticDoorTask = new Task("Research in to strong doors", Task.Status.PENDING, automaticDoor.getId());
+
+
     }
 
     private static void displayHeader() {
@@ -48,9 +62,9 @@ public class Main {
             switch (choice) {
                 case 1:
                     System.out.println("\n>> Navigating to Manage Projects...");
-                    Project.displayProjectHeader();
-                    Project.displayProjectMenu();
-                    Project.handleProjectUserInput(isRunning, scanner);
+                    ConsoleMenu.displayProjectHeader();
+                    ConsoleMenu.displayProjectMenu();
+                    ProjectService.handleProjectUserInput(isRunning, scanner);
                     break;
                 case 2:
                     System.out.println("\n>> Navigating to Manage Tasks...");

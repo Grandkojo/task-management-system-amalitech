@@ -1,17 +1,27 @@
 import java.util.Scanner;
 import models.HardwareProject;
 import models.SoftwareProject;
+import models.StatusReport;
 import models.Task;
 import models.Task.Status;
+import models.AdminUser;
+import models.RegularUser;
+import models.User;
+import services.AuthService;
 import services.ProjectService;
+import services.ReportService;
 import utils.ConsoleMenu;
 
 public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
-    private static String currentUser = "Ernest Essien (Admin)";
-    private static Boolean isRunning = true;
+    private static User currentUser;
+    private static boolean isRunning = true;
 
+    /**
+     * Seed the application with some sample projects and tasks
+     * so menus are not empty on first run.
+     */
     public static void createBaseProjects()
     {
         // create 4 projects
@@ -33,23 +43,43 @@ public class Main {
 
         Task automaticDoorTask = new Task("Research in to strong doors", Task.Status.PENDING, automaticDoor.getId());
 
+        // ReportService.generateStatusReport();
+
 
     }
 
+    /**
+     * Print the currently logged-in user and their role.
+     */
     private static void displayCurrentUser() {
-        System.out.println("Current User: " + currentUser + "\n\n");
+        if (currentUser != null) {
+            System.out.println("Current User: " + currentUser.getDisplayLabel() + "\n\n");
+        }
     }
 
 
    
+    /**
+     * Application entry point. Sets up the logged-in user and
+     * runs the main menu loop until the user exits.
+     */
     public static void main(String[] args) {
+
+        // Programmatic login – switch between admin and regular user here
+        User admin = new AdminUser("Ernest Essien", "ernest@example.com");
+        User regular = new RegularUser("Sample User", "user@example.com");
+
+        // Choose who is logged in:
+        currentUser = regular;      // Admin login
+        // currentUser = regular; // Regular user login
+        AuthService.login(currentUser);
 
         while (isRunning) {
             createBaseProjects();
             ConsoleMenu.displayHeader();
             displayCurrentUser();
             ConsoleMenu.displayMainMenu();
-            ProjectService.handleUserInput(scanner, isRunning);
+            isRunning = ProjectService.handleUserInput(scanner, isRunning);
         }
 
         // System.out.println("\nWelcome to my task manager\n");

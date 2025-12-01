@@ -1,10 +1,15 @@
 package models;
 
-import java.util.UUID;
 import services.ProjectService;
 
+/**
+ * Base class for all projects. Holds common project data and
+ * generates sequential IDs (PRJ001, PRJ002, ...) for each run.
+ */
 public abstract class Project {
     
+    private static int projectCount = 0;
+
     private String id;
     private String name;
     private String description;
@@ -13,7 +18,7 @@ public abstract class Project {
     private String projectType;
 
     public Project(String name, String description, long budget, int teamSize, String projectType) {
-        this.id = UUID.randomUUID().toString();
+        this.id = generateProjectId();
         this.name = name;
         this.description = description;
         this.budget = budget;
@@ -22,6 +27,11 @@ public abstract class Project {
 
         // Add project to storage via service
         ProjectService.addProjectToStorage(this);
+    }
+
+    private static String generateProjectId() {
+        projectCount++;
+        return String.format("PRJ%03d", projectCount);
     }
 
     public abstract void displayProjectDetailsHeader();

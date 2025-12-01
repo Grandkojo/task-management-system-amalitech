@@ -3,14 +3,17 @@ package services;
 import java.util.Scanner;
 import models.Project;
 import models.SoftwareProject;
+import models.Task;
 import models.HardwareProject;
 import static utils.ConsoleColors.*;
+
+import utils.ConsoleColors;
 import utils.ConsoleMenu;
 import utils.ValidationUtils;
 
 public class ProjectService {
     
-    //storage can take up to only 20 projects
+    // In-memory storage for projects (fixed capacity for this exercise)
     private static Project[] allProjects = new Project[20]; 
     private static int projectCount = 0;
 
@@ -84,6 +87,17 @@ public class ProjectService {
         scanner.nextLine();
         ConsoleMenu.displayProjectHeader();
         ConsoleMenu.displayProjectMenu();
+    }
+
+    public static Project[] getProjects()
+    {
+        Project[] currentProjects = new Project[projectCount];
+        for (int i = 0; i < projectCount; i++)
+        {
+            Project p = allProjects[i];
+            currentProjects[i] = p;
+        }
+        return currentProjects;
     }
 
     public static void displayProjects(Scanner scanner, Boolean isRunning, boolean fromTask) {
@@ -215,7 +229,7 @@ public class ProjectService {
         }
     }
 
-    public static void handleUserInput(Scanner scanner, boolean isRunning)
+    public static boolean handleUserInput(Scanner scanner, boolean isRunning)
     {
         if (scanner.hasNextInt())
         {
@@ -228,15 +242,21 @@ public class ProjectService {
                     ConsoleMenu.displayProjectHeader();
                     ConsoleMenu.displayProjectMenu();
                     ProjectService.handleProjectUserInput(isRunning, scanner);
-                    break;
+                    break; // stay in app
                 case 2:
                     System.out.println(GREEN + BOLD + "\n>> Navigating to Manage Tasks..." + RESET);
                     ConsoleMenu.displayTaskHeader();
                     ConsoleMenu.displayTaskMenu();
                     TaskService.handleTaskUserInput(isRunning, scanner);
-                    break;
+                    break; // stay in app
                 case 3:
                     System.out.println(GREEN + BOLD + "\n>> Navigating to View Status Reports..." + RESET);
+                    ReportService.generateStatusReport();
+                    System.out.print(ConsoleColors.BOLD + ConsoleColors.CYAN + "\n\n>> Press Enter to continue... " + ConsoleColors.RESET);
+                    scanner.nextLine();
+                    ConsoleMenu.displayHeader();
+                    ConsoleMenu.displayMainMenu();
+                    isRunning = ProjectService.handleUserInput(scanner, isRunning);
                     break;
                 case 4:
                     isRunning = false;
@@ -249,6 +269,7 @@ public class ProjectService {
             System.out.println(RED + BOLD + "\n>> Invalid input, Please enter a number" + RESET);
             scanner.next();
         }
+        return isRunning;
     }
 
 }

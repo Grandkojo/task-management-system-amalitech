@@ -3,12 +3,14 @@ package services;
 import java.util.Scanner;
 import models.Task;
 import models.Task.Status;
+import models.User;
 import utils.ConsoleMenu;
 import utils.ConsoleColors;
 import static utils.ConsoleColors.*;
 
 public class TaskService {
     
+    // In-memory storage for tasks (fixed capacity for this exercise)
     private static Task[] tasks = new Task[50]; 
     private static int taskCount = 0;
 
@@ -292,16 +294,21 @@ public class TaskService {
 
    public static void removeTask(Scanner var0, boolean isRunning, boolean fromTask)
    {
-        System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task id: " + ConsoleColors.RESET);
-        String var2 = var0.nextLine();
-        boolean isDeleted;
-        isDeleted = TaskService.removeTask(var2);
-        if (isDeleted)
-        {
-            System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\n\n>> Task deleted successfully!\n" + ConsoleColors.RESET);
+        User current = AuthService.getCurrentUser();
+        if (current == null || !current.canDeleteTasks()) {
+            System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\nYou do not have permission to delete tasks.\n" + ConsoleColors.RESET);
+            pauseAndReturn(var0, isRunning, fromTask);
+            return;
         }
 
-        System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\nTask doesn't exist, so can't be deleted" + ConsoleColors.RESET);
+        System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task id: " + ConsoleColors.RESET);
+        String var2 = var0.nextLine();
+        boolean isDeleted = TaskService.removeTask(var2);
+        if (isDeleted) {
+            System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\n\n>> Task deleted successfully!\n" + ConsoleColors.RESET);
+        } else {
+            System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\nTask doesn't exist, so can't be deleted" + ConsoleColors.RESET);
+        }
         pauseAndReturn(var0, isRunning, fromTask);
    }
 
@@ -402,6 +409,23 @@ public class TaskService {
       if (var0) {
          var1.nextLine();
       }
+   }
+
+   public static float[] getTasksReport(String projectId)
+   {
+        float total = 0.0f;
+        float completed = 0.0f;
+        for (int i = 0; i < taskCount; i++) {
+            Task t = tasks[i];
+            if (t != null && t.getProjectId().equals(projectId)) {                
+                total++;
+                if (t.getStatus().equals(Task.Status.COMPLETED)) {
+                    completed++;
+                }
+            }
+        }
+        float progress =  (((float) completed / total) * 100);
+        return new float[] {total, completed, progress};
    }
 }
 

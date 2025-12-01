@@ -94,5 +94,11 @@ public class ConsoleMenu {
         System.out.print("\n\n" + BOLD + GREEN + ">> Enter your choice: " + RESET);
     }
 
+       public static void displayStatusReportHeader() {
+        System.out.println(CYAN + BOLD + "\n\n==========================");
+        System.out.println("| PROJECT STATUS REPORT |");
+        System.out.println("==========================" + RESET + "\n\n");
+    }
+
 }
 

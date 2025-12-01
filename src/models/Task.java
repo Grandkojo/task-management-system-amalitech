@@ -1,11 +1,16 @@
 package models;
 
-import java.util.UUID;
 import services.ProjectService;
 import services.TaskService;
 import interfaces.Completable;
 
+/**
+ * Represents a task under a project. Implements Completable and
+ * generates sequential IDs (TSK001, TSK002, ...) for each run.
+ */
 public class Task implements Completable {
+
+    private static int taskCount = 0;
 
     private String id;
     private String projectId;
@@ -18,12 +23,14 @@ public class Task implements Completable {
         COMPLETED
     }
 
+    public Task(){}
+
     public Task(String name, Status status, String projectId) {
         if (ProjectService.projectExists(projectId)) {
             if (!TaskService.taskExistsForProject(projectId, name)) {
 
                 this.projectId = projectId;
-                this.id = UUID.randomUUID().toString();
+                this.id = generateTaskId();
                 this.name = name;
                 this.status = status;
 
@@ -35,6 +42,11 @@ public class Task implements Completable {
         } else {
             System.out.println("Project does not exist");
         }
+    }
+
+    private static String generateTaskId() {
+        taskCount++;
+        return String.format("TSK%03d", taskCount);
     }
 
     public boolean isCompleted() {

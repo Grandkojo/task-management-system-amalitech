@@ -21,6 +21,7 @@ public class Task implements Completable {
     public Task(String name, Status status, String projectId) {
         if (ProjectService.projectExists(projectId)) {
             if (!TaskService.taskExistsForProject(projectId, name)) {
+
                 this.projectId = projectId;
                 this.id = UUID.randomUUID().toString();
                 this.name = name;
@@ -43,6 +44,11 @@ public class Task implements Completable {
         return false;
     }
 
+    public Task getTask(String taskId)
+    {
+        return TaskService.getTask(taskId);
+    }
+
     public String getId() {
         return this.id;
     }
@@ -57,5 +63,19 @@ public class Task implements Completable {
 
     public Status getStatus() {
         return this.status;
+    }
+
+    public void setStatus(Status status)
+    {
+        this.status = status;
+    }
+
+    public boolean updateTask(String taskId, Status status)
+    {
+        if (TaskService.taskExists(taskId))
+        {
+            return TaskService.updateTask(taskId, status);
+        }
+        return false;
     }
 }

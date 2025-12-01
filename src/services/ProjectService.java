@@ -85,7 +85,7 @@ public class ProjectService {
         ConsoleMenu.displayProjectMenu();
     }
 
-    public static void displayProjects(Scanner scanner) {
+    public static void displayProjects(Scanner scanner, Boolean isRunning) {
         System.out.printf("All projects (%s)%n%n", projectCount);
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
         System.out.println("|ID\t\t\t\t| PROJECT NAME\t| DESCRIPTION\t\t\t| TYPE\t| TEAM SIZE\t| BUDGET|");
@@ -97,10 +97,10 @@ public class ProjectService {
             System.out.println("\n-----------------------------------------------------------------------------------------------------------------\n");
         }
 
-        displayProjectDetails(scanner);
+        displayProjectDetails(scanner, isRunning);
     }
 
-    public static void displayProjectDetails(Scanner scanner) {
+    public static void displayProjectDetails(Scanner scanner, Boolean isRunning) {
         System.out.print("Enter project ID to view details (or 0 to return): ");
         
         if (scanner.hasNext()) {
@@ -116,7 +116,7 @@ public class ProjectService {
                     Project foundProject = findProject(choice);
                     if (foundProject != null) {
                         foundProject.getProjectDetails();
-                        TaskService.filterByProject(foundProject.getId());
+                        TaskService.filterByProject(foundProject.getId(), scanner, isRunning);
                     } else {
                         System.out.println("\nProject does not exist");
                     }                        
@@ -126,7 +126,7 @@ public class ProjectService {
         scanner.nextLine();
     }
 
-    public static void filterByType(String projectType, Scanner scanner) {
+    public static void filterByType(String projectType, Scanner scanner, Boolean isRunning) {
         if (!ValidationUtils.isValidProjectType(projectType)) {
             System.out.println("Invalid project type: " + projectType + "\n");
             return;
@@ -143,10 +143,10 @@ public class ProjectService {
             }
         }
 
-        displayProjectDetails(scanner);
+        displayProjectDetails(scanner, isRunning);
     }
 
-    public static void filterByBudget(long minAmount, long maxAmount, Scanner scanner) {
+    public static void filterByBudget(long minAmount, long maxAmount, Scanner scanner, Boolean isRunning) {
         if (!ValidationUtils.isValidBudgetRange(minAmount, maxAmount)) {
             return;
         }
@@ -167,7 +167,7 @@ public class ProjectService {
         if (count == 0) {
             System.out.println("No projects found within budget range\n\n");
         } else {
-            displayProjectDetails(scanner);
+            displayProjectDetails(scanner, isRunning);
         }
     }
 
@@ -183,13 +183,13 @@ public class ProjectService {
                     handleProjectUserInput(isRunning, scanner);
                     break;
                 case 2:
-                    displayProjects(scanner);
+                    displayProjects(scanner, isRunning);
                     break;
                 case 3:
-                    filterByType("Software", scanner);
+                    filterByType("Software", scanner, isRunning);
                     break;
                 case 4:
-                    filterByType("Hardware", scanner);
+                    filterByType("Hardware", scanner, isRunning);
                     break;
                 case 5:
                     System.out.print("Enter mininum amount (numbers): ");
@@ -197,7 +197,7 @@ public class ProjectService {
                     System.out.print("Enter maximum amount (numbers): ");
                     long max = scanner.nextInt();
 
-                    filterByBudget(min, max, scanner);
+                    filterByBudget(min, max, scanner, isRunning);
                     break;
                 default:
                     System.out.println("\n>> Invalid input. Please a number between 1 - 5");

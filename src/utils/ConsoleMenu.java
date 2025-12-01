@@ -18,7 +18,13 @@ public class ConsoleMenu {
 
     public static void displayTaskAddHeader() {
         System.out.println("\n\n==================================");
-        System.out.println("|\t ADD NEW TASK \t|");
+        System.out.println("|\t ADD NEW TASK \t\t|");
+        System.out.println("==================================\n\n");
+    }
+
+    public static void displayTaskUpdateHeader() {
+        System.out.println("\n\n==================================");
+        System.out.println("|\t UPDATE TASK \t\t|");
         System.out.println("==================================\n\n");
     }
     
@@ -40,7 +46,6 @@ public class ConsoleMenu {
         System.out.println("2. Update Task Status");
         System.out.println("3. Remove Task");
         System.out.println("4. Back to Main Menu");
-        System.out.println("5. Search by Budget Range");
         System.out.print("\n\nEnter your choice: ");
     }
 }

@@ -2,6 +2,7 @@ import java.util.Scanner;
 import models.HardwareProject;
 import models.SoftwareProject;
 import models.Task;
+import models.Task.Status;
 import services.ProjectService;
 import utils.ConsoleMenu;
 
@@ -23,6 +24,9 @@ public class Main {
         Task alphaTrackerTask1 = new Task("Set up DB", Task.Status.IN_PROGRESS, alphaTracker.getId());
         Task alphaTrackerTask2 = new Task("Create abstract tracking class", Task.Status.COMPLETED, alphaTracker.getId());
 
+        // System.out.println(alphaTrackerTask1.updateTask(alphaTrackerTask1.getId(), Status.COMPLETED));
+        // System.out.println(alphaTrackerTask1.getStatus());
+        
         Task temperatureRecorderTask1 = new Task("Design Thermometer", Task.Status.PENDING, temperatureRecorder.getId());
 
         Task clockItTask1 = new Task("Create date filter", Task.Status.IN_PROGRESS, clockIt.getId());
@@ -32,72 +36,20 @@ public class Main {
 
     }
 
-    private static void displayHeader() {
-        System.out.println("\n\n==================================");
-        System.out.println("| JAVA PROJECT MANAGEMENT SYSTEM |");
-        System.out.println("==================================\n\n");
-    }
-
     private static void displayCurrentUser() {
         System.out.println("Current User: " + currentUser + "\n\n");
     }
 
-      private static void displayMainMenu() {
-        System.out.println("Main Menu:");
-        System.out.println("-----------");
-        System.out.println("1. Manage Projects");
-        System.out.println("2. Manage Tasks");
-        System.out.println("3. View Status Reports");
-        System.out.println("4. Exit Application");
-        System.out.print("\n\nEnter your choice: ");
-    }
 
-    private static void handleUserInput()
-    {
-        if (scanner.hasNextInt())
-        {
-            int choice = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (choice) {
-                case 1:
-                    System.out.println("\n>> Navigating to Manage Projects...");
-                    ConsoleMenu.displayProjectHeader();
-                    ConsoleMenu.displayProjectMenu();
-                    ProjectService.handleProjectUserInput(isRunning, scanner);
-                    break;
-                case 2:
-                    System.out.println("\n>> Navigating to Manage Tasks...");
-                    break;
-                case 3:
-                    System.out.println("\n>> Navigating to View Status Reports...");
-                    break;
-                case 4:
-                    isRunning = false;
-                    System.out.println("\nThank you using Project Management today!!\n");
-                    break;
-                default:
-                    System.out.println("\n>> Invalid input. Please a number between 1 - 4");
-            }
-        } else {
-            System.out.println("\n>> Invalid input, Please enter a number");
-            scanner.next();
-        }
-        if(isRunning)
-        {
-            // System.out.println("\nPress Enter to continue...");
-            scanner.nextLine();
-        }
-    }
-
+   
     public static void main(String[] args) {
 
         while (isRunning) {
             createBaseProjects();
-            displayHeader();
+            ConsoleMenu.displayHeader();
             displayCurrentUser();
-            displayMainMenu();
-            handleUserInput();
+            ConsoleMenu.displayMainMenu();
+            ProjectService.handleUserInput(scanner, isRunning);
         }
 
         // System.out.println("\nWelcome to my task manager\n");

@@ -30,7 +30,7 @@ public class Task implements Completable {
                 // Add task to storage via service
                 TaskService.addTaskToStorage(this);
             } else {
-                System.out.println("Task already exists for project");
+                System.out.println("\nTask already exists for project\n");
             }
         } else {
             System.out.println("Project does not exist");
@@ -75,6 +75,15 @@ public class Task implements Completable {
         if (TaskService.taskExists(taskId))
         {
             return TaskService.updateTask(taskId, status);
+        }
+        return false;
+    }
+
+       public boolean removeTask(String taskId)
+    {
+        if (TaskService.taskExists(taskId))
+        {
+            return TaskService.removeTask(taskId);
         }
         return false;
     }

@@ -48,22 +48,23 @@ public class ProjectService {
     }
 
     public static void addProject(Scanner scanner) {
-        System.out.print("Enter project name: ");
+        System.out.print(BOLD + YELLOW + "Enter project name: " + RESET);
         String pName = scanner.nextLine();
 
-        System.out.print("Enter project description: ");
+        System.out.print(BOLD + YELLOW + "Enter project description: " + RESET);
         String pDescription = scanner.nextLine();
         
-        System.out.print("Enter budget (numbers): ");
+        System.out.print(BOLD + YELLOW + "Enter budget (numbers): " + RESET);
         long pBudget = scanner.nextLong();
         scanner.nextLine();
 
-        System.out.print("Enter team size (numbers): ");
+        System.out.print(BOLD + YELLOW + "Enter team size (numbers): " + RESET);
         int pTeamSize = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter project type (Software or Hardware - type in full): ");
+        System.out.print(BOLD + YELLOW + "Enter project type (Software or Hardware - type in full): " + RESET);
         String pProjectType = scanner.next();
+        scanner.nextLine(); // consume trailing newline so the pause works
 
         Project newProject = null;
 
@@ -76,17 +77,17 @@ public class ProjectService {
         }
 
         if (newProject != null) {
-            System.out.print(GREEN + "\nProject " + newProject.getName() + " created successfully!\n" + RESET);
+            System.out.print(GREEN + BOLD + "\n\n>> Project '" + newProject.getName() + "' created successfully!\n" + RESET);
         }
 
+        System.out.print(BOLD + CYAN + "\n\n>> Press Enter to continue... " + RESET);
         scanner.nextLine();
-
         ConsoleMenu.displayProjectHeader();
         ConsoleMenu.displayProjectMenu();
     }
 
-    public static void displayProjects(Scanner scanner, Boolean isRunning) {
-        System.out.printf("All projects (%s)%n%n", projectCount);
+    public static void displayProjects(Scanner scanner, Boolean isRunning, boolean fromTask) {
+        System.out.printf(GREEN+"\nAll projects (%s)%n%n" + RESET, projectCount);
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
         System.out.println("|ID\t\t\t\t| PROJECT NAME\t| DESCRIPTION\t\t\t| TYPE\t| TEAM SIZE\t| BUDGET|");
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
@@ -96,12 +97,12 @@ public class ProjectService {
             System.out.printf("|%s| %s| %s| %s| %d| %d|", p.getId(), p.getName(), p.getDescription(), p.getProjectType(), p.getTeamSize(), p.getBudget());
             System.out.println("\n-----------------------------------------------------------------------------------------------------------------\n");
         }
-
-        displayProjectDetails(scanner, isRunning);
+        if (!fromTask)
+            displayProjectDetails(scanner, isRunning);
     }
 
     public static void displayProjectDetails(Scanner scanner, Boolean isRunning) {
-        System.out.print("Enter project ID to view details (or 0 to return): ");
+        System.out.print(BOLD + YELLOW + "Enter project ID to view details (or 0 to return): " + RESET);
         
         if (scanner.hasNext()) {
             String choice = scanner.next();
@@ -111,6 +112,7 @@ public class ProjectService {
                 case "0":
                     ConsoleMenu.displayProjectHeader();
                     ConsoleMenu.displayProjectMenu();
+                    handleProjectUserInput(isRunning, scanner);
                     break;
                 default:
                     Project foundProject = findProject(choice);
@@ -118,23 +120,22 @@ public class ProjectService {
                         foundProject.getProjectDetails();
                         TaskService.filterByProject(foundProject.getId(), scanner, isRunning);
                     } else {
-                        System.out.println("\nProject does not exist");
+                        System.out.println(RED + BOLD + "\n>> Project does not exist" + RESET);
                     }                        
                     break;
             }
         }
-        scanner.nextLine();
     }
 
     public static void filterByType(String projectType, Scanner scanner, Boolean isRunning) {
         if (!ValidationUtils.isValidProjectType(projectType)) {
-            System.out.println("Invalid project type: " + projectType + "\n");
+            System.out.println(RED + BOLD + "Invalid project type: " + projectType + "\n" + RESET);
             return;
         }
                 
-        System.out.println("\n\n==================================");
+        System.out.println(CYAN + BOLD + "\n\n==================================");
         System.out.printf("|\t%s Projects\t|\n", projectType);
-        System.out.println("==================================\n\n");
+        System.out.println("==================================" + RESET + "\n\n");
 
         for (int i = 0; i < projectCount; i++) {
             Project p = allProjects[i];
@@ -152,9 +153,9 @@ public class ProjectService {
         }
 
         int count = 0;
-        System.out.println("\n\n==================================");
+        System.out.println(CYAN + BOLD + "\n\n==================================");
         System.out.println("|\tProjects within range\t|");
-        System.out.println("==================================\n\n");
+        System.out.println("==================================" + RESET + "\n\n");
 
         for (int i = 0; i < projectCount; i++) {
             Project p = allProjects[i]; 
@@ -165,7 +166,13 @@ public class ProjectService {
         }
 
         if (count == 0) {
-            System.out.println("No projects found within budget range\n\n");
+            System.out.println(RED + BOLD + "No projects found within budget range\n\n" + RESET);
+            System.out.print(BOLD + CYAN + ">> Press Enter to continue... " + RESET);
+            scanner.nextLine();
+
+            ConsoleMenu.displayProjectHeader();
+            ConsoleMenu.displayProjectMenu();
+            handleProjectUserInput(isRunning, scanner);
         } else {
             displayProjectDetails(scanner, isRunning);
         }
@@ -183,7 +190,7 @@ public class ProjectService {
                     handleProjectUserInput(isRunning, scanner);
                     break;
                 case 2:
-                    displayProjects(scanner, isRunning);
+                    displayProjects(scanner, isRunning, false);
                     break;
                 case 3:
                     filterByType("Software", scanner, isRunning);
@@ -192,23 +199,57 @@ public class ProjectService {
                     filterByType("Hardware", scanner, isRunning);
                     break;
                 case 5:
-                    System.out.print("Enter mininum amount (numbers): ");
+                    System.out.print(BOLD + YELLOW + "Enter mininum amount (numbers): " + RESET);
                     long min = scanner.nextInt();
-                    System.out.print("Enter maximum amount (numbers): ");
+                    System.out.print(BOLD + YELLOW + "Enter maximum amount (numbers): " + RESET);
                     long max = scanner.nextInt();
 
                     filterByBudget(min, max, scanner, isRunning);
                     break;
                 default:
-                    System.out.println("\n>> Invalid input. Please a number between 1 - 5");
+                    System.out.println(RED + BOLD + "\n>> Invalid input. Please enter a number between 1 - 5" + RESET);
             }
         } else {
-            System.out.println("\n>> Invalid input, Please enter a number");
+            System.out.println(RED + BOLD + "\n>> Invalid input, Please enter a number" + RESET);
             scanner.next();
         }
-        if (isRunning) {
+    }
+
+    public static void handleUserInput(Scanner scanner, boolean isRunning)
+    {
+        if (scanner.hasNextInt())
+        {
+            int choice = scanner.nextInt();
             scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    System.out.println(GREEN + BOLD + "\n>> Navigating to Manage Projects..." + RESET);
+                    ConsoleMenu.displayProjectHeader();
+                    ConsoleMenu.displayProjectMenu();
+                    ProjectService.handleProjectUserInput(isRunning, scanner);
+                    break;
+                case 2:
+                    System.out.println(GREEN + BOLD + "\n>> Navigating to Manage Tasks..." + RESET);
+                    ConsoleMenu.displayTaskHeader();
+                    ConsoleMenu.displayTaskMenu();
+                    TaskService.handleTaskUserInput(isRunning, scanner);
+                    break;
+                case 3:
+                    System.out.println(GREEN + BOLD + "\n>> Navigating to View Status Reports..." + RESET);
+                    break;
+                case 4:
+                    isRunning = false;
+                    System.out.println(GREEN + BOLD + "\nThank you using Project Management today!!\n" + RESET);
+                    break;
+                default:
+                    System.out.println(RED + BOLD + "\n>> Invalid input. Please enter a number between 1 - 4" + RESET);
+            }
+        } else {
+            System.out.println(RED + BOLD + "\n>> Invalid input, Please enter a number" + RESET);
+            scanner.next();
         }
     }
+
 }
 

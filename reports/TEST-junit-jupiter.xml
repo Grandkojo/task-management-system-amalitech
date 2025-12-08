@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="JUnit Jupiter" tests="9" skipped="0" failures="0" errors="0" time="0.064" hostname="AMALITECH-PC-GH-PC-10702" timestamp="2025-12-08T09:04:00">
+<testsuite name="JUnit Jupiter" tests="9" skipped="0" failures="0" errors="0" time="0.088" hostname="AMALITECH-PC-GH-PC-10702" timestamp="2025-12-08T11:24:54">
 <properties>
 <property name="file.encoding" value="UTF-8"/>
 <property name="file.separator" value="/"/>
@@ -51,7 +51,7 @@
 <property name="user.name" value="ernest-kojo-owusu-essien"/>
 <property name="user.timezone" value="Africa/Accra"/>
 </properties>
-<testcase name="validBudgetRange()" classname="test.ValidationTests" time="0.013">
+<testcase name="validBudgetRange()" classname="test.ValidationTests" time="0.02">
 <system-out><![CDATA[
 unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:validBudgetRange()]
 display-name: validBudgetRange()
@@ -63,7 +63,7 @@ unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:createSoftwa
 display-name: createSoftwareProjectTest()
 ]]></system-out>
 </testcase>
-<testcase name="NotNegativeaBudgetRangeTest()" classname="test.ValidationTests" time="0">
+<testcase name="NotNegativeaBudgetRangeTest()" classname="test.ValidationTests" time="0.001">
 <system-out><![CDATA[
 unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:NotNegativeaBudgetRangeTest()]
 display-name: NotNegativeaBudgetRangeTest()
@@ -75,13 +75,13 @@ unique-id: [engine:junit-jupiter]/[class:test.TaskTests]/[method:taskCreatedToRi
 display-name: taskCreatedToRightProjectTest()
 ]]></system-out>
 </testcase>
-<testcase name="updateTaskWithRightStatusTest()" classname="test.TaskTests" time="0.005">
+<testcase name="updateTaskWithRightStatusTest()" classname="test.TaskTests" time="0.008">
 <system-out><![CDATA[
 unique-id: [engine:junit-jupiter]/[class:test.TaskTests]/[method:updateTaskWithRightStatusTest()]
 display-name: updateTaskWithRightStatusTest()
 ]]></system-out>
 </testcase>
-<testcase name="createHardwareProjectTest()" classname="test.ProjectTests" time="0">
+<testcase name="createHardwareProjectTest()" classname="test.ProjectTests" time="0.001">
 <system-out><![CDATA[
 unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:createHardwareProjectTest()]
 display-name: createHardwareProjectTest()
@@ -99,7 +99,7 @@ unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:projectNoFou
 display-name: projectNoFoundTest()
 ]]></system-out>
 </testcase>
-<testcase name="GreaterThanZeroBudgetRangeTest()" classname="test.ValidationTests" time="0">
+<testcase name="GreaterThanZeroBudgetRangeTest()" classname="test.ValidationTests" time="0.001">
 <system-out><![CDATA[
 unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:GreaterThanZeroBudgetRangeTest()]
 display-name: GreaterThanZeroBudgetRangeTest()

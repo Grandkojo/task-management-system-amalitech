@@ -3,6 +3,14 @@
 This is a console-based Java application that lets you create projects, manage tasks, calculate progress, and experiment with core OOP concepts (abstraction, inheritance, polymorphism, and encapsulation).
 It was built as a gradual improvement project to deepen my understanding of Java and object-oriented design.
 
+### What this module focuses on
+
+- Exception handling with custom, domain-focused exceptions (invalid input, not found, storage full).
+- SOLID-minded refactors: clearer responsibilities across services/models, better validation and flow control.
+- In-memory data using arrays (no external DB) to emphasize algorithmic handling and constraints.
+- Console UX hardening: input validation loops, role-based actions, graceful exits.
+- Preparation for testing: the design is structured for JUnit 5 basic tests on core functions.
+
 ### Setup
 
 - **Requirements**
@@ -38,7 +46,7 @@ User roles are created programmatically in `Main`:
 - `AdminUser` – can view and manage everything **including deleting tasks**.
 - `RegularUser` – can create and update tasks, but **cannot delete tasks**.
 
-In `Main.main`, you can switch the logged-in user by choosing which instance is assigned to `currentUser` before starting the loop. The active user is stored via `AuthService` and used for permission checks.
+In `Main`, both users are registered with `AuthService`. Use the **Main Menu → Switch User** option to change the active user at runtime. The active user is stored via `AuthService` and used for permission checks.
 
 #### Projects
 
@@ -112,8 +120,25 @@ IDs are guaranteed unique **within a single session** of the application. Becaus
 
 ### UML and Design Documentation
 
-- A **class diagram UML** image is available at `docs/task_manager_uml.png`.
-- Detailed design rationale (abstraction, inheritance, polymorphism, storage choices, and ID strategy) is described in `docs/design-decisions.md`.
+- Class diagram:  
+  ![Class Diagram](docs/task_manager_uml.png)
+- Detailed design rationale (abstraction, inheritance, polymorphism, storage choices, and ID strategy): see `docs/design-decisions.md`.
+
+### Test Results
+
+![Test Results](docs/test_results.png)
+
+### Commit Log Snapshot
+
+![Commit Log](docs/commit_log.png)
+
+### What you should learn here
+
+- How to structure console apps with clear separation of concerns (models, services, utils).
+- How to use custom exceptions to keep validation and error handling explicit.
+- How to apply polymorphism for role-based permissions and type-specific behavior.
+- How to make user input resilient with re-prompts and graceful shutdowns.
+- How to keep code testable and modular (ready for JUnit 5 basic tests).
 
 ### Minimum Requirements Coverage (Summary)
 

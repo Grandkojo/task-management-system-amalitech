@@ -9,6 +9,7 @@ import models.User;
 public class AuthService {
 
     private static User currentUser;
+    private static User[] availableUsers = new User[0];
 
     public static void login(User user) {
         currentUser = user;
@@ -16,6 +17,14 @@ public class AuthService {
 
     public static User getCurrentUser() {
         return currentUser;
+    }
+
+    public static void setAvailableUsers(User... users) {
+        availableUsers = users;
+    }
+
+    public static User[] getAvailableUsers() {
+        return availableUsers;
     }
 }
 

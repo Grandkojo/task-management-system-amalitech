@@ -19,7 +19,8 @@ public class ConsoleMenu {
         System.out.println(WHITE + "1. Manage Projects" + RESET);
         System.out.println(WHITE + "2. Manage Tasks" + RESET);
         System.out.println(WHITE + "3. View Status Reports" + RESET);
-        System.out.println(WHITE + "4. Exit Application" + RESET);
+        System.out.println(WHITE + "4. Switch User" + RESET);
+        System.out.println(WHITE + "5. Exit Application" + RESET);
         System.out.print("\n\n" + BOLD + GREEN + ">> Enter your choice: " + RESET);
     }
 

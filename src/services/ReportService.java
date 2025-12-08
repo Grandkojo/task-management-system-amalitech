@@ -36,7 +36,7 @@ public class ReportService {
 
         averageCompletion = totalProgress / progressCount;
 
-        System.out.printf("AVERAGE COMPLETION: %.1f%", averageCompletion);
+        System.out.printf("AVERAGE COMPLETION: %.1f%%", averageCompletion);
         System.out.println("\n-----------------------------------------------------------------------------------------------------------------");
 
 

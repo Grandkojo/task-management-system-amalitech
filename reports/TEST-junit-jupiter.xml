@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="JUnit Jupiter" tests="9" skipped="0" failures="0" errors="0" time="0.064" hostname="AMALITECH-PC-GH-PC-10702" timestamp="2025-12-08T09:04:00">
+<properties>
+<property name="file.encoding" value="UTF-8"/>
+<property name="file.separator" value="/"/>
+<property name="java.class.path" value="lib/junit-platform-console-standalone-1.13.0-M3.jar"/>
+<property name="java.class.version" value="65.0"/>
+<property name="java.home" value="/usr/lib/jvm/java-21-openjdk-amd64"/>
+<property name="java.io.tmpdir" value="/tmp"/>
+<property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+<property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+<property name="java.runtime.version" value="21.0.9+10-Ubuntu-124.04"/>
+<property name="java.specification.name" value="Java Platform API Specification"/>
+<property name="java.specification.vendor" value="Oracle Corporation"/>
+<property name="java.specification.version" value="21"/>
+<property name="java.vendor" value="Ubuntu"/>
+<property name="java.vendor.url" value="https://ubuntu.com/"/>
+<property name="java.vendor.url.bug" value="https://bugs.launchpad.net/ubuntu/+source/openjdk-21"/>
+<property name="java.version" value="21.0.9"/>
+<property name="java.version.date" value="2025-10-21"/>
+<property name="java.vm.compressedOopsMode" value="Zero based"/>
+<property name="java.vm.info" value="mixed mode, sharing"/>
+<property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+<property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+<property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+<property name="java.vm.specification.version" value="21"/>
+<property name="java.vm.vendor" value="Ubuntu"/>
+<property name="java.vm.version" value="21.0.9+10-Ubuntu-124.04"/>
+<property name="jdk.debug" value="release"/>
+<property name="junit.docs.version" value="1.13.0-M3"/>
+<property name="line.separator" value="&#10;"/>
+<property name="native.encoding" value="UTF-8"/>
+<property name="os.arch" value="amd64"/>
+<property name="os.name" value="Linux"/>
+<property name="os.version" value="6.14.0-36-generic"/>
+<property name="path.separator" value=":"/>
+<property name="stderr.encoding" value="UTF-8"/>
+<property name="stdout.encoding" value="UTF-8"/>
+<property name="sun.arch.data.model" value="64"/>
+<property name="sun.boot.library.path" value="/usr/lib/jvm/java-21-openjdk-amd64/lib"/>
+<property name="sun.cpu.endian" value="little"/>
+<property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+<property name="sun.java.command" value="lib/junit-platform-console-standalone-1.13.0-M3.jar --class-path bin --scan-classpath --include-classname .*Test.*|.*Tests.* --reports-dir=reports"/>
+<property name="sun.java.launcher" value="SUN_STANDARD"/>
+<property name="sun.jnu.encoding" value="UTF-8"/>
+<property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+<property name="user.country" value="US"/>
+<property name="user.dir" value="/home/ernest-kojo-owusu-essien/Documents/Amalitech/task-management-system-amalitech"/>
+<property name="user.home" value="/home/ernest-kojo-owusu-essien"/>
+<property name="user.language" value="en"/>
+<property name="user.name" value="ernest-kojo-owusu-essien"/>
+<property name="user.timezone" value="Africa/Accra"/>
+</properties>
+<testcase name="validBudgetRange()" classname="test.ValidationTests" time="0.013">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:validBudgetRange()]
+display-name: validBudgetRange()
+]]></system-out>
+</testcase>
+<testcase name="createSoftwareProjectTest()" classname="test.ProjectTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:createSoftwareProjectTest()]
+display-name: createSoftwareProjectTest()
+]]></system-out>
+</testcase>
+<testcase name="NotNegativeaBudgetRangeTest()" classname="test.ValidationTests" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:NotNegativeaBudgetRangeTest()]
+display-name: NotNegativeaBudgetRangeTest()
+]]></system-out>
+</testcase>
+<testcase name="taskCreatedToRightProjectTest()" classname="test.TaskTests" time="0.002">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.TaskTests]/[method:taskCreatedToRightProjectTest()]
+display-name: taskCreatedToRightProjectTest()
+]]></system-out>
+</testcase>
+<testcase name="updateTaskWithRightStatusTest()" classname="test.TaskTests" time="0.005">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.TaskTests]/[method:updateTaskWithRightStatusTest()]
+display-name: updateTaskWithRightStatusTest()
+]]></system-out>
+</testcase>
+<testcase name="createHardwareProjectTest()" classname="test.ProjectTests" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:createHardwareProjectTest()]
+display-name: createHardwareProjectTest()
+]]></system-out>
+</testcase>
+<testcase name="createTaskTest()" classname="test.TaskTests" time="0.003">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.TaskTests]/[method:createTaskTest()]
+display-name: createTaskTest()
+]]></system-out>
+</testcase>
+<testcase name="projectNoFoundTest()" classname="test.ProjectTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:projectNoFoundTest()]
+display-name: projectNoFoundTest()
+]]></system-out>
+</testcase>
+<testcase name="GreaterThanZeroBudgetRangeTest()" classname="test.ValidationTests" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:GreaterThanZeroBudgetRangeTest()]
+display-name: GreaterThanZeroBudgetRangeTest()
+]]></system-out>
+</testcase>
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]
+display-name: JUnit Jupiter
+]]></system-out>
+</testsuite>

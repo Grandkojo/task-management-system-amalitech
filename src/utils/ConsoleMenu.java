@@ -3,6 +3,8 @@ package utils;
 import services.ProjectService;
 import static utils.ConsoleColors.*;
 
+import models.Project;
+
 public class ConsoleMenu {
 
      public static void displayHeader() {
@@ -98,6 +100,23 @@ public class ConsoleMenu {
         System.out.println(CYAN + BOLD + "\n\n==========================");
         System.out.println("| PROJECT STATUS REPORT |");
         System.out.println("==========================" + RESET + "\n\n");
+    }
+
+    public void displayProjectDetailsHeader(Project p)
+    {
+        System.out.println("\n\n=============================================================================");
+        System.out.printf("|\t PROJECT DETAILS: %s \t\t|%n", p.getId());
+        System.out.println("\n==============================================================================\n\n");   
+    }
+
+    public static void getProjectDetails(Project p){
+
+        System.out.printf("Project Name: %s%nDescription: %s%nType: %s%nTeam Size: %d%nBudget: $%d%n%n",
+            p.getName(), p.getDescription(), p.getProjectType(), p.getTeamSize(), p.getBudget());   
+    }
+
+    public static void displayProject(Project p){
+        System.out.printf("Project ID: %s%nName %s%nType: %s%nBudget: %d%n%n", p.getId(), p.getName(), p.getProjectType(), p.getBudget());
     }
 
 }

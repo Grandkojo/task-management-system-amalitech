@@ -3,54 +3,59 @@ package services;
 import java.util.Scanner;
 import models.Project;
 import models.SoftwareProject;
-import models.Task;
 import models.HardwareProject;
 import static utils.ConsoleColors.*;
 
 import utils.ConsoleColors;
 import utils.ConsoleMenu;
 import utils.ValidationUtils;
+import utils.exceptions.EmptyProjectListException;
+import utils.exceptions.InvalidBudgetRangeException;
+import utils.exceptions.InvalidProjectTypeException;
+import utils.exceptions.ProjectFullException;
+import utils.exceptions.ProjectNotFoundException;
+import utils.exceptions.TaskNotFoundException;
 
 public class ProjectService {
     
     // In-memory storage for projects (fixed capacity for this exercise)
-    private static Project[] allProjects = new Project[20]; 
+    private static final int MAX_PROJECTS = 20;  
+    private static Project[] allProjects = new Project[MAX_PROJECTS]; 
     private static int projectCount = 0;
 
-    public static void addProjectToStorage(Project project) {
-        if (projectCount < allProjects.length) {
-            allProjects[projectCount] = project;
-            projectCount++; 
-        } else {
-            System.out.println("Warning! Project list is full. Could not add Project " + project.getName());
-        }
+    
+
+    public static void addProjectToStorage(Project project) throws ProjectFullException {
+        if (projectCount >= MAX_PROJECTS)
+            throw new ProjectFullException(project.getName());
+        allProjects[projectCount] = project;
+        projectCount++; 
     }
 
-    public static Project findProject(String id) {
+    public static Project findProject(String id) throws ProjectNotFoundException {
         for (int i = 0; i < projectCount; i++) {
             Project p = allProjects[i];
             if (p != null && p.getId().equals(id)) {
                 return p;
             }
         }   
-        return null;
+        throw new ProjectNotFoundException();
     }
 
     public static boolean projectExists(String projectID) {
-        for (int i = 0; i < projectCount; i++) {
-            Project p = allProjects[i];
-            if (p != null && p.getId().equals(projectID)) {
-                return true;
-            }
+        try {
+            findProject(projectID);
+            return true;
+        } catch (ProjectNotFoundException e){
+            return false;
         }
-        return false;
     }
 
     public static int getProjectCount() {
         return projectCount;
     }
 
-    public static void addProject(Scanner scanner) {
+    public static void addProject(Scanner scanner) throws InvalidProjectTypeException, ProjectFullException {
         System.out.print(BOLD + YELLOW + "Enter project name: " + RESET);
         String pName = scanner.nextLine();
 
@@ -67,26 +72,25 @@ public class ProjectService {
 
         System.out.print(BOLD + YELLOW + "Enter project type (Software or Hardware - type in full): " + RESET);
         String pProjectType = scanner.next();
-        scanner.nextLine(); // consume trailing newline so the pause works
+        scanner.nextLine();
 
-        Project newProject = null;
+        Project newProject;
 
         if (pProjectType.equals("Software")) {
             newProject = new SoftwareProject(pName, pDescription, pBudget, pTeamSize);
         } else if (pProjectType.equals("Hardware")) {
             newProject = new HardwareProject(pName, pDescription, pBudget, pTeamSize);
         } else {
-            System.out.println(RED + "Invalid project type: " + pProjectType + ". Project not created.\n" + RESET);
+            throw new InvalidProjectTypeException(pProjectType);
         }
+
+        ProjectService.addProjectToStorage(newProject);
 
         if (newProject != null) {
             System.out.print(GREEN + BOLD + "\n\n>> Project '" + newProject.getName() + "' created successfully!\n" + RESET);
         }
 
-        System.out.print(BOLD + CYAN + "\n\n>> Press Enter to continue... " + RESET);
-        scanner.nextLine();
-        ConsoleMenu.displayProjectHeader();
-        ConsoleMenu.displayProjectMenu();
+        
     }
 
     public static Project[] getProjects()
@@ -129,22 +133,24 @@ public class ProjectService {
                     handleProjectUserInput(isRunning, scanner);
                     break;
                 default:
-                    Project foundProject = findProject(choice);
-                    if (foundProject != null) {
-                        foundProject.getProjectDetails();
+                    try {
+                        Project foundProject = findProject(choice);
                         TaskService.filterByProject(foundProject.getId(), scanner, isRunning);
-                    } else {
-                        System.out.println(RED + BOLD + "\n>> Project does not exist" + RESET);
-                    }                        
+                        ConsoleMenu.getProjectDetails(foundProject);
+                    } catch (TaskNotFoundException e) {
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                    } catch (ProjectNotFoundException e){
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                    } 
+                    displayProjectDetails(scanner, isRunning);                     
                     break;
             }
         }
     }
 
-    public static void filterByType(String projectType, Scanner scanner, Boolean isRunning) {
+    public static void filterByType(String projectType, Scanner scanner, Boolean isRunning) throws InvalidProjectTypeException {
         if (!ValidationUtils.isValidProjectType(projectType)) {
-            System.out.println(RED + BOLD + "Invalid project type: " + projectType + "\n" + RESET);
-            return;
+            throw new InvalidProjectTypeException(projectType);
         }
                 
         System.out.println(CYAN + BOLD + "\n\n==================================");
@@ -154,14 +160,14 @@ public class ProjectService {
         for (int i = 0; i < projectCount; i++) {
             Project p = allProjects[i];
             if (p != null && projectType.equals(p.getProjectType())) {
-                p.displayProject();
+                ConsoleMenu.displayProject(p);
             }
         }
 
         displayProjectDetails(scanner, isRunning);
     }
 
-    public static void filterByBudget(long minAmount, long maxAmount, Scanner scanner, Boolean isRunning) {
+    public static void filterByBudget(long minAmount, long maxAmount, Scanner scanner, Boolean isRunning) throws InvalidBudgetRangeException {
         if (!ValidationUtils.isValidBudgetRange(minAmount, maxAmount)) {
             return;
         }
@@ -175,18 +181,13 @@ public class ProjectService {
             Project p = allProjects[i]; 
             if (p != null && minAmount <= p.getBudget() && p.getBudget() <= maxAmount) {
                 count++;
-                p.displayProject();       
+                ConsoleMenu.displayProject(p);       
             }
         }
 
         if (count == 0) {
             System.out.println(RED + BOLD + "No projects found within budget range\n\n" + RESET);
-            System.out.print(BOLD + CYAN + ">> Press Enter to continue... " + RESET);
-            scanner.nextLine();
-
-            ConsoleMenu.displayProjectHeader();
-            ConsoleMenu.displayProjectMenu();
-            handleProjectUserInput(isRunning, scanner);
+            
         } else {
             displayProjectDetails(scanner, isRunning);
         }
@@ -200,25 +201,58 @@ public class ProjectService {
             switch (choice) {
                 case 1:
                     ConsoleMenu.displayProjectAddHeader();
-                    addProject(scanner);
+                    try {
+                        ProjectService.addProject(scanner);
+                    } catch (InvalidProjectTypeException e){
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                    } catch (ProjectFullException e) {
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                    }
+
+                    System.out.print(BOLD + CYAN + "\n\n>> Press Enter to continue... " + RESET);
+                    scanner.nextLine();
+                    ConsoleMenu.displayProjectHeader();
+                    ConsoleMenu.displayProjectMenu();
                     handleProjectUserInput(isRunning, scanner);
                     break;
                 case 2:
                     displayProjects(scanner, isRunning, false);
                     break;
                 case 3:
-                    filterByType("Software", scanner, isRunning);
+                    try {
+                        filterByType("Software", scanner, isRunning);
+                    } catch (InvalidProjectTypeException e){
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                    }
                     break;
                 case 4:
-                    filterByType("Hardware", scanner, isRunning);
+                    try {
+                        filterByType("Hardware", scanner, isRunning);
+                    } catch (InvalidProjectTypeException e) {
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                    }
                     break;
                 case 5:
-                    System.out.print(BOLD + YELLOW + "Enter mininum amount (numbers): " + RESET);
-                    long min = scanner.nextInt();
-                    System.out.print(BOLD + YELLOW + "Enter maximum amount (numbers): " + RESET);
-                    long max = scanner.nextInt();
+                    try {
+                        System.out.print(BOLD + YELLOW + "Enter mininum amount (numbers): " + RESET);
+                        long min = scanner.nextLong();
+                        scanner.nextLine();
+                        System.out.print(BOLD + YELLOW + "Enter maximum amount (numbers): " + RESET);
+                        long max = scanner.nextLong();
+                        scanner.nextLine();
+                        filterByBudget(min, max, scanner, isRunning);
+                    } catch (java.util.InputMismatchException e) {
+                        System.out.println(RED + "ERROR: Invalid input. Please enter numeric values only." + RESET);
+                        scanner.nextLine(); // Clear the invalid input
+                    } catch (InvalidBudgetRangeException e) {
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                    }
+                    System.out.print(BOLD + CYAN + ">> Press Enter to continue... " + RESET);
+                    scanner.nextLine();
 
-                    filterByBudget(min, max, scanner, isRunning);
+                    ConsoleMenu.displayProjectHeader();
+                    ConsoleMenu.displayProjectMenu();
+                    handleProjectUserInput(isRunning, scanner);
                     break;
                 default:
                     System.out.println(RED + BOLD + "\n>> Invalid input. Please enter a number between 1 - 5" + RESET);
@@ -242,16 +276,20 @@ public class ProjectService {
                     ConsoleMenu.displayProjectHeader();
                     ConsoleMenu.displayProjectMenu();
                     ProjectService.handleProjectUserInput(isRunning, scanner);
-                    break; // stay in app
+                    break;
                 case 2:
                     System.out.println(GREEN + BOLD + "\n>> Navigating to Manage Tasks..." + RESET);
                     ConsoleMenu.displayTaskHeader();
                     ConsoleMenu.displayTaskMenu();
                     TaskService.handleTaskUserInput(isRunning, scanner);
-                    break; // stay in app
+                    break;
                 case 3:
                     System.out.println(GREEN + BOLD + "\n>> Navigating to View Status Reports..." + RESET);
-                    ReportService.generateStatusReport();
+                    try {
+                        ReportService.generateStatusReport();
+                    } catch (EmptyProjectListException e) {
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                    }
                     System.out.print(ConsoleColors.BOLD + ConsoleColors.CYAN + "\n\n>> Press Enter to continue... " + ConsoleColors.RESET);
                     scanner.nextLine();
                     ConsoleMenu.displayHeader();

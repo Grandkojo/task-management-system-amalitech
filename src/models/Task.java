@@ -1,7 +1,5 @@
 package models;
 
-import services.ProjectService;
-import services.TaskService;
 import interfaces.Completable;
 
 /**
@@ -10,12 +8,13 @@ import interfaces.Completable;
  */
 public class Task implements Completable {
 
-    private static int taskCount = 0;
-
     private String id;
     private String projectId;
     private String name;
     private Status status;
+
+    private static int taskCount = 0;
+
 
     public static enum Status {
         PENDING,
@@ -23,42 +22,20 @@ public class Task implements Completable {
         COMPLETED
     }
 
-    public Task(){}
-
-    public Task(String name, Status status, String projectId) {
-        if (ProjectService.projectExists(projectId)) {
-            if (!TaskService.taskExistsForProject(projectId, name)) {
-
-                this.projectId = projectId;
-                this.id = generateTaskId();
-                this.name = name;
-                this.status = status;
-
-                // Add task to storage via service
-                TaskService.addTaskToStorage(this);
-            } else {
-                System.out.println("\nTask already exists for project\n");
-            }
-        } else {
-            System.out.println("Project does not exist");
-        }
+    private Task(String id, String name, Status status, String projectId){
+        this.id = id;
+        this.name = name;
+        this.status = status;
+        this.projectId = projectId;
     }
 
-    private static String generateTaskId() {
+    public static Task create(String name, Status status, String projectId) {
+        return new Task(generateTaskId(), name, status, projectId);
+    }
+
+    private static synchronized String generateTaskId() {
         taskCount++;
         return String.format("TSK%03d", taskCount);
-    }
-
-    public boolean isCompleted() {
-        if (this.status.equals(Status.COMPLETED)) {
-            return true;
-        }
-        return false;
-    }
-
-    public Task getTask(String taskId)
-    {
-        return TaskService.getTask(taskId);
     }
 
     public String getId() {
@@ -77,26 +54,16 @@ public class Task implements Completable {
         return this.status;
     }
 
+    public boolean isCompleted() {
+        if (this.status.equals(Status.COMPLETED)) {
+            return true;
+        }
+        return false;
+    }
+
+    //Todo: Move to service class
     public void setStatus(Status status)
     {
         this.status = status;
-    }
-
-    public boolean updateTask(String taskId, Status status)
-    {
-        if (TaskService.taskExists(taskId))
-        {
-            return TaskService.updateTask(taskId, status);
-        }
-        return false;
-    }
-
-       public boolean removeTask(String taskId)
-    {
-        if (TaskService.taskExists(taskId))
-        {
-            return TaskService.removeTask(taskId);
-        }
-        return false;
     }
 }

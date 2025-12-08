@@ -5,22 +5,28 @@ import models.Task;
 import models.Task.Status;
 import models.User;
 import utils.ConsoleMenu;
+import utils.exceptions.EmptyProjectListException;
+import utils.exceptions.InvalidTaskStatusException;
+import utils.exceptions.TaskFullException;
+import utils.exceptions.TaskNotFoundException;
 import utils.ConsoleColors;
 import static utils.ConsoleColors.*;
 
 public class TaskService {
     
     // In-memory storage for tasks (fixed capacity for this exercise)
-    private static Task[] tasks = new Task[50]; 
+    private static final int MAX_TASKS = 50;
+    private static Task[] tasks = new Task[MAX_TASKS]; 
     private static int taskCount = 0;
 
-    public static void addTaskToStorage(Task task) {
-        if (taskCount < tasks.length) {
+    
+
+    public static void addTaskToStorage(Task task) throws TaskFullException {
+        if (taskCount >= MAX_TASKS) {
+            throw new TaskFullException(task.getName());
+        } 
             tasks[taskCount] = task;
             taskCount++; 
-        } else {
-            System.out.println("Warning! Task list is full. Could not add Task " + task.getName());
-        }
     }
 
     public static boolean taskExistsForProject(String projectId, String name) {
@@ -43,7 +49,7 @@ public class TaskService {
         return false;
     }
 
-    public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning) {
+    public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning) throws TaskNotFoundException {
         int count = 0;
         System.out.println("Associated Tasks: \n");
         System.out.println("----------------------------------------------------------------------------------");
@@ -61,11 +67,11 @@ public class TaskService {
 
         if (count == 0)
         {
-            System.out.println("\nNo associated tasks found\n");
-        } else {
-            double rate = completionRate(projectId);
-            System.out.printf("Completion Rate: %.1f%%\n\n", rate);
-        }
+            throw new TaskNotFoundException("No associated tasks found");
+        } 
+
+        double rate = completionRate(projectId);
+        System.out.printf("Completion Rate: %.1f%%\n\n", rate);
         
         ConsoleMenu.displayProjectTaskMenu();  
         TaskService.handleProjectTaskUserInput(isRunning, scanner);      
@@ -86,7 +92,7 @@ public class TaskService {
         }
     }
 
-    public static Task getTask(String taskId)
+    public static Task getTask(String taskId) throws TaskNotFoundException
     {
         for (int i = 0; i < taskCount; i++)
         {
@@ -94,10 +100,10 @@ public class TaskService {
             if (t.getId().equals(taskId))
                 return t;
         }
-        return null;
+        throw new TaskNotFoundException("Task does not exist");
     }
 
-    public static double completionRate(String projectID) {
+    public static double completionRate(String projectID) throws EmptyProjectListException {
         int total = 0;
         int completed = 0;
         for (int i = 0; i < taskCount; i++) {
@@ -110,12 +116,12 @@ public class TaskService {
             }
         }
         if (total == 0) {
-            return 0.0;
+            throw new EmptyProjectListException("Project does not have any tasks");
         }
         return (((double) completed / total) * 100);
     }
 
-    public static void addTask(Scanner var0, String projectId, Boolean isRunning) {
+    public static void addTask(Scanner var0, String projectId, Boolean isRunning) throws InvalidTaskStatusException {
       System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task name: " + ConsoleColors.RESET);
       String var1 = var0.nextLine();
       String var2 = "";
@@ -137,16 +143,16 @@ public class TaskService {
       Object var4 = null;
       switch (var3) {
         case "Pending":
-                var4 = new Task(var1, Status.PENDING , var2);
+                var4 = Task.create(var1, Status.PENDING , var2);
             break;
         case "In Progress":
-                var4 = new Task(var1, Status.IN_PROGRESS , var2);
+                var4 = Task.create(var1, Status.IN_PROGRESS , var2);
                 break;
         case "Completed":
-            var4 = new Task(var1, Status.COMPLETED , var2);
+            var4 = Task.create(var1, Status.COMPLETED , var2);
             break;
         default:
-            System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "Status not allowed, allowed ones are (Pending/In Progress/Completed)" + ConsoleColors.RESET);
+            throw new InvalidTaskStatusException(var4);
       }
       if (var4 != null) {
          System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + "\n\n>> Task '" + ((Task)var4).getName() + "'" + " added successfully to Project " + ((Task)var4).getProjectId() + "!" + ConsoleColors.RESET);
@@ -163,7 +169,7 @@ public class TaskService {
       TaskService.handleTaskUserInput(isRunning, scanner);
    }
 
-   public static boolean updateTask(String taskId, Status status)
+   public static boolean updateTask(String taskId, Status status) throws TaskNotFoundException
 {
     for (int i = 0; i < taskCount; i++)
     {
@@ -174,7 +180,7 @@ public class TaskService {
             return true; 
         }
     }
-    return false;
+    throw new TaskNotFoundException("Task does not exist, cannot update");
 }
 
 
@@ -202,7 +208,7 @@ public class TaskService {
         return true; 
    }
 
-   public static void updateTask(Scanner var0, Boolean isRunning, boolean fromTask)
+   public static void updateTask(Scanner var0, Boolean isRunning, boolean fromTask) throws InvalidTaskStatusException
    {
         System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task id: " + ConsoleColors.RESET);
         String var2 = var0.nextLine();
@@ -210,27 +216,35 @@ public class TaskService {
         String var3 = var0.nextLine();
         switch (var3) {
         case "Pending":
-               TaskService.updateTask(var2, Status.PENDING);
+                try {
+                    TaskService.updateTask(var2, Status.PENDING);
+                } catch (TaskNotFoundException e){
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                }
                 break;
         case "In Progress":
-               TaskService.updateTask(var2, Status.IN_PROGRESS);
+                try {
+                    TaskService.updateTask(var2, Status.IN_PROGRESS);
+                } catch (TaskNotFoundException e){
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                }
                 break;
         case "Completed":
-               TaskService.updateTask(var2, Status.COMPLETED);
+                try {
+                    TaskService.updateTask(var2, Status.COMPLETED);
+                } catch (TaskNotFoundException e) {
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                }
             break;
         default:
-            System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\nStatus not allowed, allowed ones are (Pending/In Progress/Completed)" + ConsoleColors.RESET);
-            break;
+            throw new InvalidTaskStatusException(var3);
       }
-      
-      Task t = TaskService.getTask(var2);
-      if (t != null) {
-         System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + "\n\n>> Task " + "'" + ((Task)t).getName() + "'" + " marked as " + ((Task)t).getStatus() + "!\n" + ConsoleColors.RESET);
-      } else {
-        System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\nTask doesn't exist, so wasn't updated" + ConsoleColors.RESET);
-
+      try {
+          Task t = TaskService.getTask(var2);
+          System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + "\n\n>> Task " + "'" + ((Task)t).getName() + "'" + " marked as " + ((Task)t).getStatus() + "!\n" + ConsoleColors.RESET);
+      } catch (TaskNotFoundException e) {
+        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
       }
-
       pauseAndReturn(var0, isRunning, fromTask);
    }
 
@@ -248,7 +262,7 @@ public class TaskService {
       }
    }
 
-   public static void displayTasks(Scanner scanner, Boolean isRunning, String projectId, Boolean fromTask)
+   public static void displayTasks(Scanner scanner, Boolean isRunning, String projectId, Boolean fromTask) throws TaskNotFoundException
    {
     int count = 0;
     System.out.printf(GREEN + "\nAll tasks under project: %s%n%n" + RESET, projectId);
@@ -266,19 +280,13 @@ public class TaskService {
         }
     }   
     if (count == 0)
-    {
-        System.out.println(RED + "\n No tasks found for this project\n" + RESET);
-        System.out.print(BOLD + CYAN + "\n\n>> Press Enter to continue... " + RESET);
-        scanner.nextLine();
-        ConsoleMenu.displayTaskHeader();
-        ConsoleMenu.displayTaskMenu();
-        TaskService.handleTaskUserInput(isRunning, scanner);
+    {   
+        throw new TaskNotFoundException("No tasks found for this project");        
 
     } else {
         double rate = completionRate(projectId);
         System.out.printf("Completion Rate: %.1f%%\n\n", rate);
 
-        // ProjectService.displayProjectDetails(scanner, isRunning);
     }
     if (!fromTask)
     {
@@ -319,12 +327,20 @@ public class TaskService {
          switch (var2) {
             case 1:
                ConsoleMenu.displayTaskAddHeader();
-               addTask(var1, null, var0);
+               try {
+                   addTask(var1, null, var0);
+               } catch (Exception e){
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+               }
                handleProjectTaskUserInput(var0, var1);
                break;
             case 2:
                 ConsoleMenu.displayTaskUpdateHeader();
-                updateTask(var1, var0, false);
+                try {
+                    updateTask(var1, var0, false);
+                } catch (Exception e) {
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                }
                 handleProjectTaskUserInput(var0, var1);
                break;
             case 3:
@@ -362,35 +378,58 @@ public class TaskService {
                ConsoleMenu.displayTaskAddHeader();
                ProjectService.displayProjects(var1, var0, true);
                System.out.print(BOLD + YELLOW + "Enter project ID to add task to (or 0 to return): " + RESET);
-               projectId = var1.nextLine();
-               addTask(var1, projectId, var0);
+               try {
+                   projectId = var1.nextLine();
+                   addTask(var1, projectId, var0);
+               } catch (InvalidTaskStatusException e){
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+               }
                handleProjectTaskUserInput(var0, var1);
                break;
             
             case 2:
                 ProjectService.displayProjects(var1, var0, true);
                 System.out.print(BOLD + YELLOW + "Enter project ID to view tasks (or 0 to return): " + RESET);
+                try {
                 projectId = var1.nextLine();
-                TaskService.displayTasks(var1, var0, projectId, true);
+                    TaskService.displayTasks(var1, var0, projectId, true);
+                } catch (TaskNotFoundException e) {
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                }
+                System.out.print(BOLD + CYAN + "\n\n>> Press Enter to continue... " + RESET);
+                var1.nextLine();
+                ConsoleMenu.displayTaskHeader();
+                ConsoleMenu.displayTaskMenu();
+                TaskService.handleTaskUserInput(var0, var1);
                 handleProjectTaskUserInput(var0, var1);
                 break;
 
             case 3:
                 ProjectService.displayProjects(var1, var0, true);
                 System.out.print(BOLD + YELLOW + "Enter project ID to view tasks to update (or 0 to return): " + RESET);
+                try {
                 projectId = var1.nextLine();
-                TaskService.displayTasks(var1, var0, projectId, true);
-                ConsoleMenu.displayTaskUpdateHeader();
-                updateTask(var1, var0, true);
+                    TaskService.displayTasks(var1, var0, projectId, true);
+                    ConsoleMenu.displayTaskUpdateHeader();
+                    updateTask(var1, var0, true);
+                } catch (TaskNotFoundException e){
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                } catch (InvalidTaskStatusException e){
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                }
                 handleProjectTaskUserInput(var0, var1);
                break;
             case 4:
                 ProjectService.displayProjects(var1, var0, true);
                 System.out.print(BOLD + YELLOW + "Enter project ID to view tasks to delete (or 0 to return): " + RESET);
+                try {
                 projectId = var1.nextLine();
-                TaskService.displayTasks(var1, var0, projectId, true);
-                ConsoleMenu.displayTaskRemoveHeader();
-                removeTask(var1, var0, true);
+                    TaskService.displayTasks(var1, var0, projectId, true);
+                    ConsoleMenu.displayTaskRemoveHeader();
+                    removeTask(var1, var0, true);
+                } catch (TaskNotFoundException e) {
+                    System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                }
                 handleProjectTaskUserInput(var0, var1);              
                 break;
             case 5:

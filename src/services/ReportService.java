@@ -2,6 +2,7 @@ package services;
 
 import models.Project;
 import utils.ConsoleMenu;
+import utils.exceptions.EmptyProjectListException;
 
 /**
  * Builds a simple aggregate status report over all projects and their tasks.
@@ -9,8 +10,12 @@ import utils.ConsoleMenu;
 public class ReportService {
 
 
-    public static void generateStatusReport()
-    {
+    public static void generateStatusReport() throws EmptyProjectListException {
+    
+        if (ProjectService.getProjectCount() == 0) {
+            throw new EmptyProjectListException("No projects found to generate status report");
+        }
+
         ConsoleMenu.displayStatusReportHeader();
         float averageCompletion = 0.0f;
         float totalProgress = 0.0f;

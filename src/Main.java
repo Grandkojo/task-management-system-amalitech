@@ -1,3 +1,6 @@
+import static utils.ConsoleColors.RED;
+import static utils.ConsoleColors.RESET;
+
 import java.util.Scanner;
 import models.HardwareProject;
 import models.SoftwareProject;
@@ -11,6 +14,7 @@ import services.AuthService;
 import services.ProjectService;
 import services.ReportService;
 import utils.ConsoleMenu;
+import utils.exceptions.ProjectFullException;
 
 public class Main {
 
@@ -25,23 +29,33 @@ public class Main {
     public static void createBaseProjects()
     {
         // create 4 projects
-        SoftwareProject alphaTracker = new SoftwareProject("Alpha Tracker", "Track my tasks for this project", 15000, 5);
-        HardwareProject temperatureRecorder = new HardwareProject("Temperature Recorder", "Record the temperature of the day at 1 pm", 10000, 3);    
-        SoftwareProject clockIt = new SoftwareProject("Clock IT", "Record what employees do during the working day", 7000, 7);
-        HardwareProject automaticDoor = new HardwareProject("Smart Door", "Automatically record employees who enter offices", 12000, 10);
+        try {
+            SoftwareProject alphaTracker = new SoftwareProject("Alpha Tracker", "Track my tasks for this project", 15000, 5);
+            HardwareProject temperatureRecorder = new HardwareProject("Temperature Recorder", "Record the temperature of the day at 1 pm", 10000, 3);    
+            SoftwareProject clockIt = new SoftwareProject("Clock IT", "Record what employees do during the working day", 7000, 7);
+            HardwareProject automaticDoor = new HardwareProject("Smart Door", "Automatically record employees who enter offices", 12000, 10);
+            
+            //create tasks under project
+            Task alphaTrackerTask1 = Task.create("Set up DB", Task.Status.IN_PROGRESS, alphaTracker.getId());
+            Task alphaTrackerTask2 = Task.create("Create abstract tracking class", Task.Status.COMPLETED, alphaTracker.getId());
+    
+            // System.out.println(alphaTrackerTask1.updateTask(alphaTrackerTask1.getId(), Status.COMPLETED));
+            // System.out.println(alphaTrackerTask1.getStatus());
+            
+            Task temperatureRecorderTask1 = Task.create("Design Thermometer", Task.Status.PENDING, temperatureRecorder.getId());
+    
+            Task clockItTask1 = Task.create("Create date filter", Task.Status.IN_PROGRESS, clockIt.getId());
+    
+            Task automaticDoorTask = Task.create("Research in to strong doors", Task.Status.PENDING, automaticDoor.getId());
+            
+            ProjectService.addProjectToStorage(alphaTracker);
+            ProjectService.addProjectToStorage(temperatureRecorder);
+            ProjectService.addProjectToStorage(clockIt);
+            ProjectService.addProjectToStorage(automaticDoor);
+        } catch (ProjectFullException e) {
+            System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+        }
 
-        //create tasks under project
-        Task alphaTrackerTask1 = new Task("Set up DB", Task.Status.IN_PROGRESS, alphaTracker.getId());
-        Task alphaTrackerTask2 = new Task("Create abstract tracking class", Task.Status.COMPLETED, alphaTracker.getId());
-
-        // System.out.println(alphaTrackerTask1.updateTask(alphaTrackerTask1.getId(), Status.COMPLETED));
-        // System.out.println(alphaTrackerTask1.getStatus());
-        
-        Task temperatureRecorderTask1 = new Task("Design Thermometer", Task.Status.PENDING, temperatureRecorder.getId());
-
-        Task clockItTask1 = new Task("Create date filter", Task.Status.IN_PROGRESS, clockIt.getId());
-
-        Task automaticDoorTask = new Task("Research in to strong doors", Task.Status.PENDING, automaticDoor.getId());
 
         // ReportService.generateStatusReport();
 

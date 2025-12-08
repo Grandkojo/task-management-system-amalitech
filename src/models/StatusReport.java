@@ -1,6 +1,6 @@
 package models;
 
-public class StatusReport extends Task {
+public class StatusReport {
 
     public StatusReport(){
         super();

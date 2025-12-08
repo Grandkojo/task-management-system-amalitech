@@ -7,6 +7,7 @@ import models.User;
 import utils.ConsoleMenu;
 import utils.exceptions.EmptyProjectListException;
 import utils.exceptions.InvalidTaskStatusException;
+import utils.exceptions.ProjectNotFoundException;
 import utils.exceptions.TaskFullException;
 import utils.exceptions.TaskNotFoundException;
 import utils.ConsoleColors;
@@ -121,45 +122,63 @@ public class TaskService {
         return (((double) completed / total) * 100);
     }
 
-    public static void addTask(Scanner var0, String projectId, Boolean isRunning) throws InvalidTaskStatusException {
-      System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task name: " + ConsoleColors.RESET);
-      String var1 = var0.nextLine();
-      String var2 = "";
-      if (projectId != null)
-      {
-        var2 = projectId;
-      } else {
-          System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter assigned project id: " + ConsoleColors.RESET);
-          var2 = var0.nextLine();
-      }
+    public static void addTask(Scanner scanner, String projectId, Boolean isRunning) 
+        throws InvalidTaskStatusException {
+    
+        System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + 
+                        "Enter task name: " + ConsoleColors.RESET);
+        String taskName = scanner.nextLine();
 
-      if (!ProjectService.projectExists(var2)) {
-         System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\n\n>> Project does not exist. Task not created.\n" + ConsoleColors.RESET);
-         pauseAndReturnToTaskMenu(var0, isRunning);
-         return;
-      }
-      System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter initial status (Pending/In Progress/Completed): " + ConsoleColors.RESET);
-      String var3 = var0.nextLine();
-      Object var4 = null;
-      switch (var3) {
-        case "Pending":
-                var4 = Task.create(var1, Status.PENDING , var2);
-            break;
-        case "In Progress":
-                var4 = Task.create(var1, Status.IN_PROGRESS , var2);
+        String assignedProjectId = "";
+        if (projectId != null) {
+            assignedProjectId = projectId;
+        } else {
+            System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + 
+                            "Enter assigned project id: " + ConsoleColors.RESET);
+            assignedProjectId = scanner.nextLine().trim();
+        }
+
+        // Check if the project exists
+        try {
+            ProjectService.projectExists(assignedProjectId);
+        } catch (ProjectNotFoundException e) {
+            System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + 
+                            "\n\n>> Project does not exist. Task not created.\n" + ConsoleColors.RESET);
+            System.out.println(ConsoleColors.RED + "ERROR: " + e.getMessage() + ConsoleColors.RESET);
+            pauseAndReturnToTaskMenu(scanner, isRunning);
+            return;
+        }
+
+        System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + 
+                        "Enter initial status (Pending/In Progress/Completed): " + ConsoleColors.RESET);
+        String statusInput = scanner.nextLine().trim();
+
+        Task createdTask = null;
+
+        switch (statusInput) {
+            case "Pending":
+                createdTask = Task.create(taskName, Status.PENDING, assignedProjectId);
                 break;
-        case "Completed":
-            var4 = Task.create(var1, Status.COMPLETED , var2);
-            break;
-        default:
-            throw new InvalidTaskStatusException(var4);
-      }
-      if (var4 != null) {
-         System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + "\n\n>> Task '" + ((Task)var4).getName() + "'" + " added successfully to Project " + ((Task)var4).getProjectId() + "!" + ConsoleColors.RESET);
-      }
+            case "In Progress":
+                createdTask = Task.create(taskName, Status.IN_PROGRESS, assignedProjectId);
+                break;
+            case "Completed":
+                createdTask = Task.create(taskName, Status.COMPLETED, assignedProjectId);
+                break;
+            default:
+                throw new InvalidTaskStatusException("Invalid status: '" + statusInput + 
+                        "'. Must be one of: Pending, In Progress, Completed");
+        }
 
-      pauseAndReturnToTaskMenu(var0, isRunning);
-   }
+        if (createdTask != null) {
+            System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + 
+                            "\n\n>> Task '" + createdTask.getName() + 
+                            "' added successfully to Project " + createdTask.getProjectId() + "!" + 
+                            ConsoleColors.RESET);
+        }
+
+        pauseAndReturnToTaskMenu(scanner, isRunning);
+}
 
    private static void pauseAndReturnToTaskMenu(Scanner scanner, Boolean isRunning) {
       System.out.print(ConsoleColors.BOLD + ConsoleColors.CYAN + "\n\n>> Press Enter to continue... " + ConsoleColors.RESET);

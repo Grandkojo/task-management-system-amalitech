@@ -42,12 +42,12 @@ public class ProjectService {
         throw new ProjectNotFoundException();
     }
 
-    public static boolean projectExists(String projectID) {
+    public static boolean projectExists(String projectID) throws ProjectNotFoundException {
         try {
             findProject(projectID);
             return true;
         } catch (ProjectNotFoundException e){
-            return false;
+            throw new ProjectNotFoundException();
         }
     }
 

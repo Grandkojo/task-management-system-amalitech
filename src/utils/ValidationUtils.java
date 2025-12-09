@@ -2,6 +2,9 @@ package utils;
 
 import utils.exceptions.InvalidBudgetRangeException;
 
+/**
+ * Helpers for validating user inputs (project type, budget range).
+ */
 public class ValidationUtils {
 
     // Validate allowed project types for user input

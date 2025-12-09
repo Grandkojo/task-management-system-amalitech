@@ -17,14 +17,17 @@ import utils.ExitHandler;
 import utils.exceptions.ProjectFullException;
 import utils.exceptions.TaskFullException;
 
+/**
+ * Entry point for the console-based Project/Task management app.
+ * Initializes sample data, wires default users, and drives the main menu loop.
+ */
 public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
     private static boolean isRunning = true;
 
     /**
-     * Seed the application with some sample projects and tasks
-     * so menus are not empty on first run.
+     * Seed the application with sample projects and tasks so menus are populated on first run.
      */
     public static void createBaseProjects()
     {
@@ -75,8 +78,8 @@ public class Main {
     }
 
     /**
-     * Application entry point. Sets up the logged-in user and
-     * runs the main menu loop until the user exits.
+     * Application entry point. Sets up users, registers a shutdown hook,
+     * and runs the main menu loop until the user exits.
      */
     public static void main(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread(ExitHandler::printOnce));

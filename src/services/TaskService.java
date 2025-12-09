@@ -13,6 +13,10 @@ import utils.exceptions.TaskNotFoundException;
 import utils.ConsoleColors;
 import static utils.ConsoleColors.*;
 
+/**
+ * Service layer for task creation, updates, deletion, listing, and reporting.
+ * Manages in-memory task storage and menu-driven task flows with validation.
+ */
 public class TaskService {
     
     // In-memory storage for tasks (fixed capacity for this exercise)
@@ -22,6 +26,11 @@ public class TaskService {
 
     
 
+    /**
+     * Store a task in the in-memory array or throw if capacity is reached.
+     * @param task task to store
+     * @throws TaskFullException when capacity is exceeded
+     */
     public static void addTaskToStorage(Task task) throws TaskFullException {
         if (taskCount >= MAX_TASKS) {
             throw new TaskFullException(task.getName());
@@ -30,6 +39,13 @@ public class TaskService {
             taskCount++; 
     }
 
+    /**
+     * Check whether a task with the given name exists for a project.
+     * @param projectId project identifier
+     * @param name task name
+     * @return true if found
+     * @throws TaskNotFoundException when not found
+     */
     public static boolean taskExists(String projectId, String name) throws TaskNotFoundException {
         for (int i = 0; i < taskCount; i++) {
             Task t = tasks[i];
@@ -40,6 +56,11 @@ public class TaskService {
         throw new TaskNotFoundException("Task does not exist");
     }
 
+     /**
+      * Check whether a task id exists.
+      * @param taskId id to check
+      * @return true if found
+      */
      public static boolean taskExists(String taskId) {
         for (int i = 0; i < taskCount; i++) {
             Task t = tasks[i];
@@ -50,6 +71,13 @@ public class TaskService {
         return false;
     }
 
+    /**
+     * Display tasks for a project and route to the task submenu; keeps project context.
+     * @param projectId project identifier
+     * @param scanner shared scanner
+     * @param isRunning app running flag
+     * @throws TaskNotFoundException when no tasks are found
+     */
     public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning) throws TaskNotFoundException {
         filterByProject(projectId, scanner, isRunning, null);
     }
@@ -127,6 +155,13 @@ public class TaskService {
         return (((double) completed / total) * 100);
     }
 
+    /**
+     * Interactive flow to add a task: validates project, name rules, and status.
+     * @param scanner shared scanner
+     * @param projectId optional project id (if already chosen)
+     * @param isRunning app running flag
+     * @throws ProjectNotFoundException when project does not exist
+     */
     public static void addTask(Scanner scanner, String projectId, Boolean isRunning) 
         throws ProjectNotFoundException {
     
@@ -252,7 +287,14 @@ public class TaskService {
         return true; 
    }
 
-   public static void updateTask(Scanner var0, Boolean isRunning, boolean fromTask) throws InvalidTaskStatusException
+    /**
+     * Interactive status update flow: validates task id, then loops until a valid status is provided.
+     * @param var0 shared scanner
+     * @param isRunning app running flag
+     * @param fromTask true when invoked from task submenu
+     * @throws InvalidTaskStatusException when status text is invalid
+     */
+    public static void updateTask(Scanner var0, Boolean isRunning, boolean fromTask) throws InvalidTaskStatusException
    {
         String taskId = "";
         // Loop until a valid task id is provided
@@ -382,6 +424,12 @@ public class TaskService {
         pauseAndReturn(var0, isRunning, fromTask);
    }
 
+   /**
+    * Handle the task submenu, optionally scoped to a current project.
+    * @param var0 app running flag
+    * @param var1 shared scanner
+    * @param currentProjectId optional project context to reuse
+    */
    public static void handleProjectTaskUserInput(Boolean var0, Scanner var1) {
       handleProjectTaskUserInput(var0, var1, null);
    }
@@ -457,6 +505,11 @@ public class TaskService {
 
    }
 
+   /**
+    * Entry point for the top-level task menu (non-scoped).
+    * @param var0 app running flag
+    * @param var1 shared scanner
+    */
    public static void handleTaskUserInput(Boolean var0, Scanner var1)
    {
         String projectId = "";

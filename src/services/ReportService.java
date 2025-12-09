@@ -10,6 +10,10 @@ import utils.exceptions.EmptyProjectListException;
 public class ReportService {
 
 
+    /**
+     * Print a status report showing per-project task counts and progress, plus average completion.
+     * @throws EmptyProjectListException when no projects exist.
+     */
     public static void generateStatusReport() throws EmptyProjectListException {
     
         if (ProjectService.getProjectCount() == 0) {

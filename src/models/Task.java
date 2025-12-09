@@ -53,7 +53,11 @@ public class Task implements Completable {
     public Status getStatus() {
         return this.status;
     }
-
+    /**
+     * Check if the task is completed.
+     * @return true if the task is completed, false otherwise.
+    */
+    @Override
     public boolean isCompleted() {
         if (this.status.equals(Status.COMPLETED)) {
             return true;
@@ -61,7 +65,6 @@ public class Task implements Completable {
         return false;
     }
 
-    //Todo: Move to service class
     public void setStatus(Status status)
     {
         this.status = status;

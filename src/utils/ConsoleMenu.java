@@ -5,6 +5,9 @@ import static utils.ConsoleColors.*;
 
 import models.Project;
 
+/**
+ * Renders console menus and static headings for the application.
+ */
 public class ConsoleMenu {
 
      public static void displayHeader() {

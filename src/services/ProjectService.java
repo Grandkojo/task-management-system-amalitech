@@ -19,6 +19,10 @@ import utils.exceptions.ProjectFullException;
 import utils.exceptions.ProjectNotFoundException;
 import utils.exceptions.TaskNotFoundException;
 
+/**
+ * Service layer for creating, storing, and presenting projects.
+ * Handles menu-driven project interactions and bridges to task views.
+ */
 public class ProjectService {
     
     // In-memory storage for projects (fixed capacity for this exercise)
@@ -28,6 +32,11 @@ public class ProjectService {
 
     
 
+    /**
+     * Persist a project into the in-memory store, enforcing capacity.
+     * @param project project to store
+     * @throws ProjectFullException when the storage array is full
+     */
     public static void addProjectToStorage(Project project) throws ProjectFullException {
         if (projectCount >= MAX_PROJECTS)
             throw new ProjectFullException(project.getName());
@@ -72,6 +81,12 @@ public class ProjectService {
         System.out.println(GREEN + BOLD + "\n>> Switched to " + selected.getDisplayLabel() + RESET);
     }
 
+    /**
+     * Find a project by id or throw if not found.
+     * @param id project identifier
+     * @return the matching project
+     * @throws ProjectNotFoundException when no project matches the id
+     */
     public static Project findProject(String id) throws ProjectNotFoundException {
         for (int i = 0; i < projectCount; i++) {
             Project p = allProjects[i];
@@ -82,6 +97,12 @@ public class ProjectService {
         throw new ProjectNotFoundException();
     }
 
+    /**
+     * Check existence of a project id or throw if not found.
+     * @param projectID id to look up
+     * @return true if found
+     * @throws ProjectNotFoundException when not found
+     */
     public static boolean projectExists(String projectID) throws ProjectNotFoundException {
         try {
             findProject(projectID);
@@ -91,10 +112,19 @@ public class ProjectService {
         }
     }
 
+    /**
+     * @return current number of stored projects.
+     */
     public static int getProjectCount() {
         return projectCount;
     }
 
+    /**
+     * Interactive project creation flow with input validation and type enforcement.
+     * @param scanner shared scanner for console input
+     * @throws InvalidProjectTypeException when type is not Software/Hardware
+     * @throws ProjectFullException when storage is full
+     */
     public static void addProject(Scanner scanner) throws InvalidProjectTypeException, ProjectFullException {
         System.out.print(BOLD + YELLOW + "Enter project name: " + RESET);
         String pName = scanner.nextLine();
@@ -169,6 +199,12 @@ public class ProjectService {
         return currentProjects;
     }
 
+    /**
+     * Print a table of projects; optionally route to details lookup unless invoked from task flow.
+     * @param scanner shared scanner
+     * @param isRunning app running flag
+     * @param fromTask true when invoked from task flows to avoid recursive prompts
+     */
     public static void displayProjects(Scanner scanner, Boolean isRunning, boolean fromTask) {
         System.out.printf(GREEN+"\nAll projects (%s)%n%n" + RESET, projectCount);
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
@@ -184,6 +220,11 @@ public class ProjectService {
             displayProjectDetails(scanner, isRunning);
     }
 
+    /**
+     * Interactive prompt to view project details; loops until a valid id or return is chosen.
+     * @param scanner shared scanner
+     * @param isRunning app running flag
+     */
     public static void displayProjectDetails(Scanner scanner, Boolean isRunning) {
         while (true) {
             System.out.print(BOLD + YELLOW + "Enter project ID to view details (or 0 to return): " + RESET);
@@ -216,6 +257,13 @@ public class ProjectService {
         }
     }
 
+    /**
+     * Filter projects by type; re-prompts on invalid type input.
+     * @param projectType Software or Hardware
+     * @param scanner shared scanner
+     * @param isRunning app running flag
+     * @throws InvalidProjectTypeException when type is invalid
+     */
     public static void filterByType(String projectType, Scanner scanner, Boolean isRunning) throws InvalidProjectTypeException {
         if (!ValidationUtils.isValidProjectType(projectType)) {
             throw new InvalidProjectTypeException(projectType);
@@ -235,6 +283,14 @@ public class ProjectService {
         displayProjectDetails(scanner, isRunning);
     }
 
+    /**
+     * Filter projects by budget range; loops on invalid numeric input or invalid range.
+     * @param minAmount minimum budget
+     * @param maxAmount maximum budget
+     * @param scanner shared scanner
+     * @param isRunning app running flag
+     * @throws InvalidBudgetRangeException when min/max are invalid
+     */
     public static void filterByBudget(long minAmount, long maxAmount, Scanner scanner, Boolean isRunning) throws InvalidBudgetRangeException {
         if (!ValidationUtils.isValidBudgetRange(minAmount, maxAmount)) {
             return;
@@ -261,6 +317,11 @@ public class ProjectService {
         }
     }
 
+    /**
+     * Handle project submenu choices.
+     * @param isRunning app running flag
+     * @param scanner shared scanner
+     */
     public static void handleProjectUserInput(Boolean isRunning, Scanner scanner) {
         if (scanner.hasNextInt()) {
             int choice = scanner.nextInt();
@@ -339,6 +400,12 @@ public class ProjectService {
         }
     }
 
+    /**
+     * Handle main menu choices; returns false when the app should exit.
+     * @param scanner shared scanner
+     * @param isRunning current running flag
+     * @return false when app should terminate
+     */
     public static boolean handleUserInput(Scanner scanner, boolean isRunning)
     {
         // Gracefully handle EOF (e.g., Ctrl+D) by exiting the loop without errors

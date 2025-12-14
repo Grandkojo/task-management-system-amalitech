@@ -1,6 +1,10 @@
 package services;
 
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
 import models.Task;
 import models.Task.Status;
 import models.User;
@@ -13,6 +17,7 @@ import utils.exceptions.TaskNotFoundException;
 import utils.ConsoleColors;
 import static utils.ConsoleColors.*;
 
+
 /**
  * Service layer for task creation, updates, deletion, listing, and reporting.
  * Manages in-memory task storage and menu-driven task flows with validation.
@@ -20,10 +25,7 @@ import static utils.ConsoleColors.*;
 public class TaskService {
     
     // In-memory storage for tasks (fixed capacity for this exercise)
-    private static final int MAX_TASKS = 50;
-    private static Task[] tasks = new Task[MAX_TASKS]; 
-    private static int taskCount = 0;
-
+    private static ArrayList<Task> tasks = new ArrayList<>(); 
     
 
     /**
@@ -31,12 +33,8 @@ public class TaskService {
      * @param task task to store
      * @throws TaskFullException when capacity is exceeded
      */
-    public static void addTaskToStorage(Task task) throws TaskFullException {
-        if (taskCount >= MAX_TASKS) {
-            throw new TaskFullException(task.getName());
-        } 
-            tasks[taskCount] = task;
-            taskCount++; 
+    public static void addTaskToStorage(Task task) {
+            tasks.add(task);
     }
 
     /**
@@ -47,8 +45,7 @@ public class TaskService {
      * @throws TaskNotFoundException when not found
      */
     public static boolean taskExists(String projectId, String name) throws TaskNotFoundException {
-        for (int i = 0; i < taskCount; i++) {
-            Task t = tasks[i];
+            for (Task t : tasks){
             if (t != null && t.getProjectId().equals(projectId) && t.getName().equals(name)) {
                 return true;
             }
@@ -62,8 +59,7 @@ public class TaskService {
       * @return true if found
       */
      public static boolean taskExists(String taskId) {
-        for (int i = 0; i < taskCount; i++) {
-            Task t = tasks[i];
+            for (Task t : tasks){
             if (t != null && t.getId().equals(taskId)) {
                 return true;
             }
@@ -82,22 +78,24 @@ public class TaskService {
         filterByProject(projectId, scanner, isRunning, null);
     }
 
+    private static final Predicate<String> VALID_TASK_ID = id -> Pattern.matches("TSK\\d{3}", id.trim().toUpperCase());
+
     // Overload that keeps project context for task submenu
     public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning, String currentProjectId) throws TaskNotFoundException {
-        int count = 0;
         System.out.println("Associated Tasks: \n");
         System.out.println("----------------------------------------------------------------------------------");
         System.out.println("|ID\t\t\t\t\t| TASK NAME\t| STATUS\t|");
         System.out.println("----------------------------------------------------------------------------------");
+        Predicate<Task> belongsToProject = task -> task.getProjectId().equals(currentProjectId);
 
-        for (int i = 0; i < taskCount; i++) {
-            Task t = tasks[i];
-            if (t != null && t.getProjectId().equals(projectId)) {
-                count++;
-                System.out.printf("|%s| \t%s| %s|", t.getId(), t.getName(), t.getStatus());
-                System.out.println("\n------------------------------------------------------------------------------------\n");
-            }
-        }
+        long count = tasks.stream()
+                .filter(task -> task != null)
+                .filter(belongsToProject)
+                .peek(task -> {
+                    System.out.printf("|%s| \t%s| %s|", task.getId(), task.getName(), task.getStatus());
+                    System.out.println("\n------------------------------------------------------------------------------------\n");
+                })
+                .count();
 
         if (count == 0)
         {
@@ -117,8 +115,7 @@ public class TaskService {
         System.out.println("|ID\t\t\t\t| TASK NAME\t| STATUS\t\t\t|");
         System.out.println("------------------------------------------------------------------------------");
 
-        for (int i = 0; i < taskCount; i++) {
-            Task t = tasks[i];
+        for (Task t : tasks){
             if (t != null) {
                 System.out.printf("|%s| %s| %s|", t.getId(), t.getName(), t.getStatus());
                 System.out.println("\n---------------------------------------------------------------------------\n");
@@ -128,31 +125,21 @@ public class TaskService {
 
     public static Task getTask(String taskId) throws TaskNotFoundException
     {
-        for (int i = 0; i < taskCount; i++)
-        {
-            Task t = tasks[i];
-            if (t.getId().equals(taskId))
-                return t;
-        }
-        throw new TaskNotFoundException("Task does not exist");
+        return tasks.stream()
+            .filter(t -> t.getId().equals(taskId))
+            .findFirst()
+            .orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
     }
 
     public static double completionRate(String projectID) throws EmptyProjectListException {
-        int total = 0;
-        int completed = 0;
-        for (int i = 0; i < taskCount; i++) {
-            Task t = tasks[i];
-            if (t != null && t.getProjectId().equals(projectID)) {
-                total++;
-                if (t.getStatus().equals(Task.Status.COMPLETED)) {
-                    completed++;
-                }
-            }
-        }
-        if (total == 0) {
-            throw new EmptyProjectListException("Project does not have any tasks");
-        }
-        return (((double) completed / total) * 100);
+        long total = tasks.stream()
+                        .filter(t -> t.getProjectId().equals(projectID))
+                        .count();
+        long completed = tasks.stream()
+                        .filter(t -> t.getProjectId().equals(projectID))
+                        .filter(t -> t.getStatus() == Status.COMPLETED)
+                        .count();
+        return total == 0 ? 0.0 : (((double) completed / total) * 100);
     }
 
     /**
@@ -227,16 +214,11 @@ public class TaskService {
         }
 
         // Store task (may throw if storage is full)
-        try {
-            addTaskToStorage(createdTask);
-            System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + 
-                            "\n\n>> Task '" + createdTask.getName() + 
-                            "' added successfully to Project " + createdTask.getProjectId() + "!" + 
-                            ConsoleColors.RESET);
-        } catch (TaskFullException e) {
-            System.out.println(ConsoleColors.RED + "ERROR: " + e.getMessage() + ConsoleColors.RESET);
-        }
-
+        addTaskToStorage(createdTask);
+        System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + 
+                        "\n\n>> Task '" + createdTask.getName() + 
+                        "' added successfully to Project " + createdTask.getProjectId() + "!" + 
+                        ConsoleColors.RESET);
         pauseAndReturnToTaskMenu(scanner, isRunning);
 }
 
@@ -250,9 +232,8 @@ public class TaskService {
 
    public static boolean updateTask(String taskId, Status status) throws TaskNotFoundException
 {
-    for (int i = 0; i < taskCount; i++)
-    {
-        Task t = tasks[i];
+    
+    for (Task t : tasks){
         if (t.getId().equals(taskId)) 
         {
             t.setStatus(status);
@@ -263,28 +244,10 @@ public class TaskService {
 }
 
 
-   public static boolean removeTask(String taskId)
+   public static boolean removeTask(String taskId) throws TaskNotFoundException
    {
-        int index = -1;
-        for (int i = 0; i < taskCount; i++)
-        {
-            Task t = tasks[i];
-            if (t.getId().equals(taskId))
-            {  index = i;
-                break;
-            }
-        }
-        if (index == -1)
-            return false;
-
-        //shift all elements by 1
-        for (int j = index; j < taskCount - 1; j++)
-        {
-            tasks[j] = tasks[j + 1];
-
-        }
-        tasks[taskCount - 1] = null;
-        return true; 
+       Task t = TaskService.getTask(taskId);
+       return tasks.remove(t);
    }
 
     /**
@@ -302,7 +265,8 @@ public class TaskService {
             System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task id: " + ConsoleColors.RESET);
             taskId = var0.nextLine();
             try {
-                TaskService.getTask(taskId);
+                if(VALID_TASK_ID.test(taskId))
+                    TaskService.getTask(taskId);
                 break; // valid id
             } catch (TaskNotFoundException e) {
                 System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
@@ -369,8 +333,7 @@ public class TaskService {
     System.out.println("----------------------------------------------------------------------------------");
 
 
-    for (int i = 0; i < taskCount; i++) {
-        Task t = tasks[i];
+    for (Task t : tasks){
         if (t != null && t.getProjectId().equals(projectId)) {
             count++;
             System.out.printf("|%s| \t%s| %s|", t.getId(), t.getName(), t.getStatus());
@@ -408,17 +371,24 @@ public class TaskService {
         }
 
         while (true) {
-            System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task id (or 0 to cancel): " + ConsoleColors.RESET);
-            String var2 = var0.nextLine();
-            if ("0".equals(var2)) {
-                break;
-            }
-            boolean isDeleted = TaskService.removeTask(var2);
-            if (isDeleted) {
-                System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\n\n>> Task deleted successfully!\n" + ConsoleColors.RESET);
-                break;
-            } else {
-                System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\nTask doesn't exist, so can't be deleted" + ConsoleColors.RESET);
+            try {
+                System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task id (or 0 to cancel): " + ConsoleColors.RESET);
+                String var2 = var0.nextLine();
+                if ("0".equals(var2)) {
+                    break;
+                }
+                if (VALID_TASK_ID.test(var2)) {
+                    boolean isDeleted = TaskService.removeTask(var2);
+                    if (isDeleted) {
+                        System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\n\n>> Task deleted successfully!\n" + ConsoleColors.RESET);
+                        break;
+                    } else {
+                        System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\nTask doesn't exist, so can't be deleted" + ConsoleColors.RESET);
+                    }
+                }
+            } catch (TaskNotFoundException e){
+                    System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + e.getMessage() + ConsoleColors.RESET);
+
             }
         }
         pauseAndReturn(var0, isRunning, fromTask);
@@ -635,19 +605,17 @@ public class TaskService {
 
    public static float[] getTasksReport(String projectId)
    {
-        float total = 0.0f;
-        float completed = 0.0f;
-        for (int i = 0; i < taskCount; i++) {
-            Task t = tasks[i];
-            if (t != null && t.getProjectId().equals(projectId)) {                
-                total++;
-                if (t.getStatus().equals(Task.Status.COMPLETED)) {
-                    completed++;
-                }
-            }
-        }
-        float progress =  (((float) completed / total) * 100);
-        return new float[] {total, completed, progress};
+        long total = tasks.stream()
+                    .filter(t -> t.getProjectId().equals(projectId))
+                    .count();
+
+        long completed = tasks.stream()
+                    .filter(t -> t.getProjectId().equals(projectId))
+                    .filter(t -> t.getStatus().equals(Status.COMPLETED))
+                    .count();
+
+        float progress = (total == 0) ? 0.0f : (((float) completed / total) * 100);
+        return new float[] {(float)total, (float)completed, progress};
    }
 }
 

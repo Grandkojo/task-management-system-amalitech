@@ -1,6 +1,12 @@
 package services;
 
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+
 import models.Project;
 import models.SoftwareProject;
 import models.HardwareProject;
@@ -26,9 +32,11 @@ import utils.exceptions.TaskNotFoundException;
 public class ProjectService {
     
     // In-memory storage for projects (fixed capacity for this exercise)
-    private static final int MAX_PROJECTS = 20;  
-    private static Project[] allProjects = new Project[MAX_PROJECTS]; 
-    private static int projectCount = 0;
+    // private static final int MAX_PROJECTS = 20;  
+    // private static Project[] allProjects = new Project[MAX_PROJECTS]; 
+    private static HashMap<String, Project> allProjects = new HashMap<>();
+
+    // private static int projectCount = 0;
 
     
 
@@ -37,11 +45,9 @@ public class ProjectService {
      * @param project project to store
      * @throws ProjectFullException when the storage array is full
      */
-    public static void addProjectToStorage(Project project) throws ProjectFullException {
-        if (projectCount >= MAX_PROJECTS)
-            throw new ProjectFullException(project.getName());
-        allProjects[projectCount] = project;
-        projectCount++; 
+    public static void addProjectToStorage(Project project) {
+        allProjects.put(project.getId(), project);
+        // projectCount++; 
     }
 
     private static void redisplayProjectMenu(Scanner scanner, Boolean isRunning) {
@@ -88,12 +94,8 @@ public class ProjectService {
      * @throws ProjectNotFoundException when no project matches the id
      */
     public static Project findProject(String id) throws ProjectNotFoundException {
-        for (int i = 0; i < projectCount; i++) {
-            Project p = allProjects[i];
-            if (p != null && p.getId().equals(id)) {
-                return p;
-            }
-        }   
+        if (allProjects.get(id) != null)
+           return allProjects.get(id);
         throw new ProjectNotFoundException();
     }
 
@@ -116,7 +118,7 @@ public class ProjectService {
      * @return current number of stored projects.
      */
     public static int getProjectCount() {
-        return projectCount;
+        return allProjects.size();
     }
 
     /**
@@ -188,15 +190,9 @@ public class ProjectService {
         
     }
 
-    public static Project[] getProjects()
+    public static Collection<Project> getProjects()
     {
-        Project[] currentProjects = new Project[projectCount];
-        for (int i = 0; i < projectCount; i++)
-        {
-            Project p = allProjects[i];
-            currentProjects[i] = p;
-        }
-        return currentProjects;
+        return allProjects.values();
     }
 
     /**
@@ -206,16 +202,20 @@ public class ProjectService {
      * @param fromTask true when invoked from task flows to avoid recursive prompts
      */
     public static void displayProjects(Scanner scanner, Boolean isRunning, boolean fromTask) {
-        System.out.printf(GREEN+"\nAll projects (%s)%n%n" + RESET, projectCount);
+        System.out.printf(GREEN+"\nAll projects (%s)%n%n" + RESET, getProjectCount());
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
         System.out.println("|ID\t\t\t\t| PROJECT NAME\t| DESCRIPTION\t\t\t| TYPE\t| TEAM SIZE\t| BUDGET|");
         System.out.println("-----------------------------------------------------------------------------------------------------------------");
 
-        for (int i = 0; i < projectCount; i++) {
-            Project p = allProjects[i];
-            System.out.printf("|%s| %s| %s| %s| %d| %d|", p.getId(), p.getName(), p.getDescription(), p.getProjectType(), p.getTeamSize(), p.getBudget());
-            System.out.println("\n-----------------------------------------------------------------------------------------------------------------\n");
-        }
+        allProjects.values().stream()
+            .sorted(Comparator.comparing(Project::getName))
+            .forEach(p -> {
+                System.out.printf("|%s| %s| %s| %s| %d| %d|%n",
+                p.getId(), p.getName(), p.getDescription(),
+                p.getProjectType(), p.getTeamSize(), p.getBudget());
+            System.out.println("-----------------------------------------------------------------------------------------------------------------");
+            });
+
         if (!fromTask)
             displayProjectDetails(scanner, isRunning);
     }
@@ -273,13 +273,14 @@ public class ProjectService {
         System.out.printf("|\t%s Projects\t|\n", projectType);
         System.out.println("==================================" + RESET + "\n\n");
 
-        for (int i = 0; i < projectCount; i++) {
-            Project p = allProjects[i];
-            if (p != null && projectType.equals(p.getProjectType())) {
-                ConsoleMenu.displayProject(p);
-            }
+        long count = allProjects.values().stream()
+            .filter(p -> projectType.equals(p.getProjectType()))
+            .peek(ConsoleMenu::displayProject)
+            .count();
+        
+        if (count == 0) {
+            throw new InvalidProjectTypeException(projectType);
         }
-
         displayProjectDetails(scanner, isRunning);
     }
 
@@ -296,23 +297,20 @@ public class ProjectService {
             return;
         }
 
-        int count = 0;
+        List<Project> inRange = allProjects.values().stream()
+            .filter(p -> p.getBudget() >= minAmount && p.getBudget() <= maxAmount)
+            .sorted(Comparator.comparingLong(Project::getBudget))
+            .collect(Collectors.toList());
+
         System.out.println(CYAN + BOLD + "\n\n==================================");
         System.out.println("|\tProjects within range\t|");
         System.out.println("==================================" + RESET + "\n\n");
 
-        for (int i = 0; i < projectCount; i++) {
-            Project p = allProjects[i]; 
-            if (p != null && minAmount <= p.getBudget() && p.getBudget() <= maxAmount) {
-                count++;
-                ConsoleMenu.displayProject(p);       
-            }
-        }
-
-        if (count == 0) {
+        if (inRange.isEmpty()) {
             System.out.println(RED + BOLD + "No projects found within budget range\n\n" + RESET);
             
         } else {
+            inRange.forEach(ConsoleMenu::displayProject);
             displayProjectDetails(scanner, isRunning);
         }
     }

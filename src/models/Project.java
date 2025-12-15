@@ -1,5 +1,7 @@
 package models;
 
+import java.util.List;
+
 /**
  * Base class for all projects. Holds common project data and
  * generates sequential IDs (PRJ001, PRJ002, ...) for each run.
@@ -14,6 +16,7 @@ public abstract class Project {
     private long budget;
     private int teamSize;
     private String projectType;
+    private List<Task> tasks;
 
     protected Project(String name, String description, long budget, int teamSize, String projectType) {
         this.id = generateProjectId();
@@ -48,5 +51,17 @@ public abstract class Project {
 
 
     public int getProjectsCount() { return projectCount; }
+
+     /**
+     * Sets the list of tasks associated with this project.
+     * @param tasks The list of tasks to set.
+     */
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+     public List<Task> getTasks() {
+        return tasks;
+    }
 
 }

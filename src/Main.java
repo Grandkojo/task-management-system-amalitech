@@ -12,6 +12,7 @@ import services.ProjectService;
 import services.TaskService;
 import utils.ConsoleMenu;
 import utils.ExitHandler;
+import utils.FileUtils;
 
 /**
  * Entry point for the console-based Project/Task management app.
@@ -83,12 +84,14 @@ public class Main {
 
         while (isRunning) {
             try {
-                createBaseProjects();
+                // createBaseProjects();
+                FileUtils.loadProjects();
                 ConsoleMenu.displayHeader();
                 displayCurrentUser();
                 ConsoleMenu.displayMainMenu();
                 isRunning = ProjectService.handleUserInput(scanner, isRunning);
-            } catch (NoSuchElementException eof) {
+            }
+             catch (NoSuchElementException eof) {
                 // Input stream closed; exit quietly and let shutdown hook print message
                 isRunning = false;
                 ExitHandler.printOnce();

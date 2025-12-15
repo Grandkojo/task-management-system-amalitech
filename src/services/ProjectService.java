@@ -47,7 +47,6 @@ public class ProjectService {
      */
     public static void addProjectToStorage(Project project) {
         allProjects.put(project.getId(), project);
-        // projectCount++; 
     }
 
     private static void redisplayProjectMenu(Scanner scanner, Boolean isRunning) {

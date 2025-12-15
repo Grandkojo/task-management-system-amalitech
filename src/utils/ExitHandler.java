@@ -12,7 +12,9 @@ public final class ExitHandler {
     private ExitHandler() {}
 
     public static void printOnce() {
+        
         if (printed.compareAndSet(false, true)) {
+            FileUtils.saveProjects();
             System.out.println("\nThank you using Project Management today!!");
         }
     }

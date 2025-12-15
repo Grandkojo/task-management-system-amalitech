@@ -3,12 +3,11 @@ package services;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
-
 import models.Task;
 import models.Task.Status;
 import models.User;
 import utils.ConsoleMenu;
+import utils.RegexValidator;
 import utils.exceptions.EmptyProjectListException;
 import utils.exceptions.InvalidTaskStatusException;
 import utils.exceptions.ProjectNotFoundException;
@@ -78,7 +77,6 @@ public class TaskService {
         filterByProject(projectId, scanner, isRunning, null);
     }
 
-    private static final Predicate<String> VALID_TASK_ID = id -> Pattern.matches("TSK\\d{3}", id.trim().toUpperCase());
 
     // Overload that keeps project context for task submenu
     public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning, String currentProjectId) throws TaskNotFoundException {
@@ -121,6 +119,10 @@ public class TaskService {
                 System.out.println("\n---------------------------------------------------------------------------\n");
             }
         }
+    }
+
+    public static ArrayList<Task> getAllTasks(){
+        return tasks;
     }
 
     public static Task getTask(String taskId) throws TaskNotFoundException
@@ -258,20 +260,25 @@ public class TaskService {
      * @throws InvalidTaskStatusException when status text is invalid
      */
     public static void updateTask(Scanner var0, Boolean isRunning, boolean fromTask) throws InvalidTaskStatusException
-   {
+    {
         String taskId = "";
         // Loop until a valid task id is provided
         while (true) {
             System.out.print(ConsoleColors.BOLD + ConsoleColors.YELLOW + "Enter task id: " + ConsoleColors.RESET);
             taskId = var0.nextLine();
             try {
-                if(VALID_TASK_ID.test(taskId))
+                if(RegexValidator.VALID_TASK_ID.test(taskId)){
                     TaskService.getTask(taskId);
-                break; // valid id
+                    break;
+                }
+                // throw new InvalidTaskIdFormatException();
+                System.out.println(RED + "ERROR: " + "Invalid Task ID format. Use pattern TSK### (eg., TSK001)" + RESET);
+
             } catch (TaskNotFoundException e) {
                 System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
             }
         }
+        
 
         boolean updated = false;
         while (!updated) {
@@ -298,17 +305,19 @@ public class TaskService {
                 System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
                 break; // task not found, exit loop
             }
+            
         }
-      if (updated) {
-          try {
-              Task t = TaskService.getTask(taskId);
-              System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + "\n\n>> Task " + "'" + ((Task)t).getName() + "'" + " marked as " + ((Task)t).getStatus() + "!\n" + ConsoleColors.RESET);
-          } catch (TaskNotFoundException e) {
-            System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
-          }
-      }
-      pauseAndReturn(var0, isRunning, fromTask);
+        if (updated) {
+            try {
+                Task t = TaskService.getTask(taskId);
+                System.out.println(ConsoleColors.GREEN + ConsoleColors.BOLD + "\n\n>> Task " + "'" + ((Task)t).getName() + "'" + " marked as " + ((Task)t).getStatus() + "!\n" + ConsoleColors.RESET);
+            } catch (TaskNotFoundException e) {
+                System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+            }
+        }
+        pauseAndReturn(var0, isRunning, fromTask);
    }
+   
 
    private static void pauseAndReturn(Scanner scanner, Boolean isRunning, boolean fromTask) {
       System.out.print(ConsoleColors.BOLD + ConsoleColors.CYAN + "\n\n>> Press Enter to continue... " + ConsoleColors.RESET);
@@ -377,7 +386,7 @@ public class TaskService {
                 if ("0".equals(var2)) {
                     break;
                 }
-                if (VALID_TASK_ID.test(var2)) {
+                if (RegexValidator.VALID_PROJECT_ID.test(var2)) {
                     boolean isDeleted = TaskService.removeTask(var2);
                     if (isDeleted) {
                         System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\n\n>> Task deleted successfully!\n" + ConsoleColors.RESET);
@@ -385,6 +394,10 @@ public class TaskService {
                     } else {
                         System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + "\nTask doesn't exist, so can't be deleted" + ConsoleColors.RESET);
                     }
+                } else {
+                    // throw new InvalidTaskIdFormatException();
+                    System.out.println(RED + "ERROR: " + "Invalid Task ID format. Use pattern TSK### (eg., TSK001)" + RESET);
+
                 }
             } catch (TaskNotFoundException e){
                     System.out.println(ConsoleColors.RED + ConsoleColors.BOLD + e.getMessage() + ConsoleColors.RESET);
@@ -392,6 +405,10 @@ public class TaskService {
             }
         }
         pauseAndReturn(var0, isRunning, fromTask);
+   }
+
+   public static void simulateConcurrentTasksUpdates(int taskNumber){
+        
    }
 
    /**
@@ -457,6 +474,11 @@ public class TaskService {
                 handleProjectTaskUserInput(var0, var1, currentProjectId);              
                 break;
             case 4:
+                ConsoleMenu.displayConcurrentTaskSimulationHeader();
+                simulateConcurrentTasksUpdates(3);
+                handleProjectTaskUserInput(var0, var1, currentProjectId);              
+                break;
+            case 5:
                 ConsoleMenu.displayHeader();
                 ConsoleMenu.displayMainMenu();
                 ProjectService.handleUserInput(var1, var0);
@@ -577,7 +599,7 @@ public class TaskService {
                         ConsoleMenu.displayTaskRemoveHeader();
                         removeTask(var1, var0, true);
                         handleProjectTaskUserInput(var0, var1);
-                        break; // success
+                        break;
                     } catch (ProjectNotFoundException e){
                         System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
                     } catch (TaskNotFoundException e) {

@@ -87,6 +87,7 @@ public class ConsoleMenu {
         System.out.println(WHITE + "3. Software Projects Only" + RESET);
         System.out.println(WHITE + "4. Hardware Projects Only" + RESET);
         System.out.println(WHITE + "5. Search by Budget Range" + RESET);
+        System.out.println(WHITE + "6. Back to Main Menu" + RESET);
         System.out.print("\n\n" + BOLD + GREEN + ">> Enter filter choice: " + RESET);
     }
 
@@ -96,7 +97,8 @@ public class ConsoleMenu {
         System.out.println(WHITE + "1. Add Task" + RESET);
         System.out.println(WHITE + "2. Update Task Status" + RESET);
         System.out.println(WHITE + "3. Remove Task" + RESET);
-        System.out.println(WHITE + "4. Back to Main Menu" + RESET);
+        System.out.println(WHITE + "4. Simulate Concurrent Tasks Update" + RESET);
+        System.out.println(WHITE + "5. Back to Main Menu" + RESET);
         System.out.print("\n\n" + BOLD + GREEN + ">> Enter your choice: " + RESET);
     }
 
@@ -121,6 +123,12 @@ public class ConsoleMenu {
 
     public static void displayProject(Project p){
         System.out.printf("Project ID: %s%nName %s%nType: %s%nBudget: %d%n%n", p.getId(), p.getName(), p.getProjectType(), p.getBudget());
+    }
+
+    public static void displayConcurrentTaskSimulationHeader(){
+        System.out.println(CYAN + BOLD + "\n\n=======================================");
+        System.out.println("| PARALLEL TASK UPDATE SIMULATION |");
+        System.out.println("===============================" + RESET + "\n\n");
     }
 
 }

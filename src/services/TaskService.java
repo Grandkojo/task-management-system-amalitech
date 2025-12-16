@@ -3,6 +3,8 @@ package services;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.function.Predicate;
+
+import models.SoftwareProject;
 import models.Task;
 import models.Task.Status;
 import models.User;
@@ -25,6 +27,7 @@ public class TaskService {
     
     // In-memory storage for tasks (fixed capacity for this exercise)
     private static ArrayList<Task> tasks = new ArrayList<>(); 
+    static Object lock = new Object();
     
 
     /**
@@ -236,11 +239,13 @@ public class TaskService {
 {
     
     for (Task t : tasks){
-        if (t.getId().equals(taskId)) 
-        {
-            t.setStatus(status);
-            return true; 
-        }
+        synchronized(lock) {
+            if (t.getId().equals(taskId)) 
+            {
+                t.setStatus(status);
+                return true; 
+            }
+        } 
     }
     throw new TaskNotFoundException("Task does not exist, cannot update");
 }
@@ -407,8 +412,67 @@ public class TaskService {
         pauseAndReturn(var0, isRunning, fromTask);
    }
 
-   public static void simulateConcurrentTasksUpdates(int taskNumber){
-        
+   public static void simulateConcurrentTasksUpdates(Scanner scanner, Boolean isRunning, Boolean fromTask) throws InterruptedException{
+        SoftwareProject softwareProject = new SoftwareProject("Project to test", "This project is used to task parallel updates", 1200, 2);
+        Task task1 = Task.create("Start thinking", Status.PENDING, softwareProject.getId());
+        Task task2 = Task.create("Formulate plans", Status.IN_PROGRESS, softwareProject.getId());
+        Task task3 = Task.create("Take action", Status.PENDING, softwareProject.getId());
+        TaskService.addTaskToStorage(task1);
+        TaskService.addTaskToStorage(task2);
+        TaskService.addTaskToStorage(task3);
+
+        Thread thread1 = new Thread(() -> {
+            try {
+                TaskService.updateTask(task1.getId(), Status.IN_PROGRESS);
+                System.out.printf("\n%s updating %s -> %s\n", "Thread-1", task1.getId(), TaskService.getTask(task1.getId()).getStatus());
+
+            } catch (TaskNotFoundException e) {
+                System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+            }
+        });
+
+        Thread thread2 = new Thread(() -> {
+            try {
+                TaskService.updateTask(task2.getId(), Status.COMPLETED);
+                System.out.printf("%s updating %s -> %s\n","Thread-2", task2.getId(), TaskService.getTask(task2.getId()).getStatus());
+            } catch (TaskNotFoundException e) {
+                System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+            }
+        });
+
+        Thread thread3 = new Thread(() -> {
+            try {
+                TaskService.updateTask(task3.getId(), Status.IN_PROGRESS);
+                System.out.printf("%s updating %s -> %s\n","Thread-3", task3.getId(), TaskService.getTask(task3.getId()).getStatus());
+
+            } catch (TaskNotFoundException e) {
+                System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+            }
+        });
+        System.out.print(BOLD + CYAN + "\n>> Press Enter to start concurrent updates... " + RESET);
+        scanner.nextLine();
+        System.out.println("Starting 3 threads...");
+        //start three threads
+        thread1.start();
+        thread2.start();
+        thread3.start();
+
+        //wait for all threads to finish
+        thread1.join();
+        thread2.join();
+        thread3.join();
+
+        System.out.println("All threads finished successfully");
+        System.out.println("Tasks updates applied concurrently and safely");
+
+        if (fromTask)
+        {
+            System.out.print(BOLD + CYAN + "\n\n>> Press Enter to continue... " + RESET);
+            scanner.nextLine();
+            ConsoleMenu.displayTaskHeader();
+            ConsoleMenu.displayTaskMenu();
+            TaskService.handleTaskUserInput(isRunning, scanner);
+        }
    }
 
    /**
@@ -450,10 +514,15 @@ public class TaskService {
                        break;
                    }
                    try {
-                       ProjectService.projectExists(projectId);
-                       addTask(var1, projectId, var0);
-                       handleProjectTaskUserInput(var0, var1, null);
-                       break; // success
+                        if(RegexValidator.VALID_PROJECT_ID.test(projectId)){
+                            ProjectService.projectExists(projectId);
+                            addTask(var1, projectId, var0);
+                            handleProjectTaskUserInput(var0, var1, null);
+                            break; // success
+                        }else {
+                            System.out.println(RED + "ERROR: " + "Invalid Project ID format. Use pattern PRJ### (eg., PRJ001)" + RESET);
+                        }
+
                    } catch (ProjectNotFoundException e){
                         System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
                    }
@@ -473,12 +542,18 @@ public class TaskService {
                 removeTask(var1, var0, false);
                 handleProjectTaskUserInput(var0, var1, currentProjectId);              
                 break;
+            // case 4:
+            //     ConsoleMenu.displayConcurrentTaskSimulationHeader();
+            //     try {
+            //         simulateConcurrentTasksUpdates(var1);
+            //     } catch (InterruptedException e) {
+            //             System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+            //     }
+            //     ConsoleMenu.displayTaskHeader();
+            //     ConsoleMenu.displayTaskMenu();
+            //     handleProjectTaskUserInput(var0, var1, currentProjectId);              
+            //     break;
             case 4:
-                ConsoleMenu.displayConcurrentTaskSimulationHeader();
-                simulateConcurrentTasksUpdates(3);
-                handleProjectTaskUserInput(var0, var1, currentProjectId);              
-                break;
-            case 5:
                 ConsoleMenu.displayHeader();
                 ConsoleMenu.displayMainMenu();
                 ProjectService.handleUserInput(var1, var0);
@@ -520,10 +595,15 @@ public class TaskService {
                        break;
                    }
                    try {
-                       ProjectService.projectExists(projectId);
-                       addTask(var1, projectId, var0);
-                       handleProjectTaskUserInput(var0, var1);
-                       break; // success
+                        if(RegexValidator.VALID_PROJECT_ID.test(projectId)){
+                            ProjectService.projectExists(projectId);
+                            addTask(var1, projectId, var0);
+                            handleProjectTaskUserInput(var0, var1);
+                            break; // success
+                        } else {
+                            System.out.println(RED + "ERROR: " + "Invalid Project ID format. Use pattern PRJ### (eg., PRJ001)" + RESET);
+
+                        }
                    } catch (ProjectNotFoundException e){
                         System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
                    }
@@ -540,6 +620,8 @@ public class TaskService {
                         break;
                     }
                     try {
+                        if(RegexValidator.VALID_PROJECT_ID.test(projectId)){
+
                         // Validate project existence first
                         ProjectService.projectExists(projectId);
 
@@ -551,6 +633,10 @@ public class TaskService {
                         TaskService.handleTaskUserInput(var0, var1);
                         handleProjectTaskUserInput(var0, var1);
                         break; // success
+                        } else {
+                            System.out.println(RED + "ERROR: " + "Invalid Project ID format. Use pattern PRJ### (eg., PRJ001)" + RESET);
+
+                        }
                     } catch (ProjectNotFoundException e) {
                         System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
                     } catch (TaskNotFoundException e) {
@@ -594,12 +680,17 @@ public class TaskService {
                         break;
                     }
                     try {
+                        if(RegexValidator.VALID_PROJECT_ID.test(projectId)){
                         ProjectService.projectExists(projectId);
                         TaskService.displayTasks(var1, var0, projectId, true);
                         ConsoleMenu.displayTaskRemoveHeader();
                         removeTask(var1, var0, true);
                         handleProjectTaskUserInput(var0, var1);
                         break;
+                        } else {
+                            System.out.println(RED + "ERROR: " + "Invalid Project ID format. Use pattern PRJ### (eg., PRJ001)" + RESET);
+
+                        }
                     } catch (ProjectNotFoundException e){
                         System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
                     } catch (TaskNotFoundException e) {
@@ -608,6 +699,17 @@ public class TaskService {
                 }              
                 break;
             case 5:
+                ConsoleMenu.displayConcurrentTaskSimulationHeader();
+                try {
+                    simulateConcurrentTasksUpdates(var1, var0, true);
+                    TaskService.handleTaskUserInput(var0, var1);
+                    handleProjectTaskUserInput(var0, var1); //check params
+                    break;
+                } catch (InterruptedException e) {
+                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
+                }
+                break;
+            case 6:
                 ConsoleMenu.displayHeader();
                 ConsoleMenu.displayMainMenu();
                 ProjectService.handleUserInput(var1, var0);

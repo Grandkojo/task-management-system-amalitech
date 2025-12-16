@@ -17,6 +17,7 @@ import utils.ConsoleColors;
 import utils.ConsoleMenu;
 import utils.ValidationUtils;
 import utils.ExitHandler;
+import utils.RegexValidator;
 import utils.exceptions.EmptyProjectListException;
 import utils.exceptions.InvalidBudgetRangeException;
 import utils.exceptions.InvalidInputException;
@@ -243,10 +244,15 @@ public class ProjectService {
             }
 
             try {
-                Project foundProject = findProject(choice);
-                // Show tasks and stay in this project context for subsequent task actions
-                TaskService.filterByProject(foundProject.getId(), scanner, isRunning, foundProject.getId());
-                ConsoleMenu.getProjectDetails(foundProject);
+                if(RegexValidator.VALID_PROJECT_ID.test(choice)){
+                   
+                    Project foundProject = findProject(choice);
+                    // Show tasks and stay in this project context for subsequent task actions
+                    TaskService.filterByProject(foundProject.getId(), scanner, isRunning, foundProject.getId());
+                    ConsoleMenu.getProjectDetails(foundProject);
+                }
+                System.out.println(RED + "ERROR: " + "Invalid Project ID format. Use pattern PRJ### (eg., PRJ001)" + RESET);
+
             } catch (TaskNotFoundException e) {
                 System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
             } catch (ProjectNotFoundException e){

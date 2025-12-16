@@ -12,7 +12,79 @@
         "id": "TSK001",
         "projectId": "PRJ001",
         "name": "Create database with tables",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "id": "TSK001",
+        "projectId": "PRJ001",
+        "name": "Test DB",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "id": "TSK001",
+        "projectId": "PRJ001",
+        "name": "File Testing",
         "status": "PENDING"
+      },
+      {
+        "id": "TSK001",
+        "projectId": "PRJ001",
+        "name": "Start thinking",
+        "status": "PENDING"
+      },
+      {
+        "id": "TSK002",
+        "projectId": "PRJ001",
+        "name": "Formulate plans",
+        "status": "COMPLETED"
+      },
+      {
+        "id": "TSK003",
+        "projectId": "PRJ001",
+        "name": "Take action",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "id": "TSK001",
+        "projectId": "PRJ001",
+        "name": "Start thinking",
+        "status": "PENDING"
+      },
+      {
+        "id": "TSK002",
+        "projectId": "PRJ001",
+        "name": "Formulate plans",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "id": "TSK003",
+        "projectId": "PRJ001",
+        "name": "Take action",
+        "status": "PENDING"
+      },
+      {
+        "id": "TSK001",
+        "projectId": "PRJ001",
+        "name": "Start thinking",
+        "status": "PENDING"
+      },
+      {
+        "id": "TSK002",
+        "projectId": "PRJ001",
+        "name": "Formulate plans",
+        "status": "IN_PROGRESS"
+      },
+      {
+        "id": "TSK003",
+        "projectId": "PRJ001",
+        "name": "Take action",
+        "status": "PENDING"
+      },
+      {
+        "id": "TSK001",
+        "projectId": "PRJ001",
+        "name": "Create database with tables",
+        "status": "IN_PROGRESS"
       },
       {
         "id": "TSK001",

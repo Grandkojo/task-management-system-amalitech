@@ -2,9 +2,8 @@ package services;
 
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.function.Predicate;
 
-import models.SoftwareProject;
+import interfaces.TaskFilter;
 import models.Task;
 import models.Task.Status;
 import models.User;
@@ -36,7 +35,11 @@ public class TaskService {
      * @throws TaskFullException when capacity is exceeded
      */
     public static void addTaskToStorage(Task task) {
+        boolean exists = tasks.stream()
+        .anyMatch(t -> t.getId().equals(task.getId()));
+        if (!exists) {
             tasks.add(task);
+        }
     }
 
     /**
@@ -76,38 +79,39 @@ public class TaskService {
      * @param isRunning app running flag
      * @throws TaskNotFoundException when no tasks are found
      */
-    public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning) throws TaskNotFoundException {
-        filterByProject(projectId, scanner, isRunning, null);
-    }
+    // public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning) throws TaskNotFoundException {
+    //     filterByProject(projectId, scanner, isRunning, null);
+    // }
 
 
     // Overload that keeps project context for task submenu
-    public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning, String currentProjectId) throws TaskNotFoundException {
+    public static void filterByProject(String projectId, Scanner scanner, Boolean isRunning, String currentProjectId)
+        throws TaskNotFoundException {
+
         System.out.println("Associated Tasks: \n");
         System.out.println("----------------------------------------------------------------------------------");
         System.out.println("|ID\t\t\t\t\t| TASK NAME\t| STATUS\t|");
         System.out.println("----------------------------------------------------------------------------------");
-        Predicate<Task> belongsToProject = task -> task.getProjectId().equals(currentProjectId);
 
-        long count = tasks.stream()
-                .filter(task -> task != null)
-                .filter(belongsToProject)
-                .peek(task -> {
-                    System.out.printf("|%s| \t%s| %s|", task.getId(), task.getName(), task.getStatus());
-                    System.out.println("\n------------------------------------------------------------------------------------\n");
-                })
-                .count();
+        TaskFilter belongsToProject = task -> task.getProjectId().equals(projectId);
 
-        if (count == 0)
-        {
+        var filtered = StreamService.filterTasks(tasks, belongsToProject);
+
+        if (filtered.isEmpty()) {
             throw new TaskNotFoundException("No associated tasks found");
-        } 
+        }
 
-        double rate = completionRate(projectId);
+        filtered.forEach(task -> {
+            System.out.printf("|%s| \t%s| %s|", task.getId(), task.getName(), task.getStatus());
+            System.out.println("\n------------------------------------------------------------------------------------\n");
+        });
+
+        double rate = StreamService.completionRate(tasks, projectId);
         System.out.printf("Completion Rate: %.1f%%\n\n", rate);
-        
-        ConsoleMenu.displayProjectTaskMenu();  
-        TaskService.handleProjectTaskUserInput(isRunning, scanner, currentProjectId != null ? currentProjectId : projectId);      
+
+        ConsoleMenu.displayProjectTaskMenu();
+        TaskService.handleProjectTaskUserInput(isRunning, scanner,
+                currentProjectId != null ? currentProjectId : projectId);
     }
 
     public static void getTasks() {
@@ -137,14 +141,7 @@ public class TaskService {
     }
 
     public static double completionRate(String projectID) throws EmptyProjectListException {
-        long total = tasks.stream()
-                        .filter(t -> t.getProjectId().equals(projectID))
-                        .count();
-        long completed = tasks.stream()
-                        .filter(t -> t.getProjectId().equals(projectID))
-                        .filter(t -> t.getStatus() == Status.COMPLETED)
-                        .count();
-        return total == 0 ? 0.0 : (((double) completed / total) * 100);
+        return StreamService.completionRate(tasks, projectID);
     }
 
     /**
@@ -413,66 +410,7 @@ public class TaskService {
    }
 
    public static void simulateConcurrentTasksUpdates(Scanner scanner, Boolean isRunning, Boolean fromTask) throws InterruptedException{
-        SoftwareProject softwareProject = new SoftwareProject("Project to test", "This project is used to task parallel updates", 1200, 2);
-        Task task1 = Task.create("Start thinking", Status.PENDING, softwareProject.getId());
-        Task task2 = Task.create("Formulate plans", Status.IN_PROGRESS, softwareProject.getId());
-        Task task3 = Task.create("Take action", Status.PENDING, softwareProject.getId());
-        TaskService.addTaskToStorage(task1);
-        TaskService.addTaskToStorage(task2);
-        TaskService.addTaskToStorage(task3);
-
-        Thread thread1 = new Thread(() -> {
-            try {
-                TaskService.updateTask(task1.getId(), Status.IN_PROGRESS);
-                System.out.printf("\n%s updating %s -> %s\n", "Thread-1", task1.getId(), TaskService.getTask(task1.getId()).getStatus());
-
-            } catch (TaskNotFoundException e) {
-                System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
-            }
-        });
-
-        Thread thread2 = new Thread(() -> {
-            try {
-                TaskService.updateTask(task2.getId(), Status.COMPLETED);
-                System.out.printf("%s updating %s -> %s\n","Thread-2", task2.getId(), TaskService.getTask(task2.getId()).getStatus());
-            } catch (TaskNotFoundException e) {
-                System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
-            }
-        });
-
-        Thread thread3 = new Thread(() -> {
-            try {
-                TaskService.updateTask(task3.getId(), Status.IN_PROGRESS);
-                System.out.printf("%s updating %s -> %s\n","Thread-3", task3.getId(), TaskService.getTask(task3.getId()).getStatus());
-
-            } catch (TaskNotFoundException e) {
-                System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
-            }
-        });
-        System.out.print(BOLD + CYAN + "\n>> Press Enter to start concurrent updates... " + RESET);
-        scanner.nextLine();
-        System.out.println("Starting 3 threads...");
-        //start three threads
-        thread1.start();
-        thread2.start();
-        thread3.start();
-
-        //wait for all threads to finish
-        thread1.join();
-        thread2.join();
-        thread3.join();
-
-        System.out.println("All threads finished successfully");
-        System.out.println("Tasks updates applied concurrently and safely");
-
-        if (fromTask)
-        {
-            System.out.print(BOLD + CYAN + "\n\n>> Press Enter to continue... " + RESET);
-            scanner.nextLine();
-            ConsoleMenu.displayTaskHeader();
-            ConsoleMenu.displayTaskMenu();
-            TaskService.handleTaskUserInput(isRunning, scanner);
-        }
+        ConcurrencyService.simulateConcurrentTasksUpdates(scanner, isRunning, fromTask);
    }
 
    /**
@@ -542,17 +480,6 @@ public class TaskService {
                 removeTask(var1, var0, false);
                 handleProjectTaskUserInput(var0, var1, currentProjectId);              
                 break;
-            // case 4:
-            //     ConsoleMenu.displayConcurrentTaskSimulationHeader();
-            //     try {
-            //         simulateConcurrentTasksUpdates(var1);
-            //     } catch (InterruptedException e) {
-            //             System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
-            //     }
-            //     ConsoleMenu.displayTaskHeader();
-            //     ConsoleMenu.displayTaskMenu();
-            //     handleProjectTaskUserInput(var0, var1, currentProjectId);              
-            //     break;
             case 4:
                 ConsoleMenu.displayHeader();
                 ConsoleMenu.displayMainMenu();

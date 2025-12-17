@@ -203,17 +203,21 @@ public class ProjectService {
      */
     public static void displayProjects(Scanner scanner, Boolean isRunning, boolean fromTask) {
         System.out.printf(GREEN+"\nAll projects (%s)%n%n" + RESET, getProjectCount());
-        System.out.println("-----------------------------------------------------------------------------------------------------------------");
-        System.out.println("|ID\t\t\t\t| PROJECT NAME\t| DESCRIPTION\t\t\t| TYPE\t| TEAM SIZE\t| BUDGET|");
-        System.out.println("-----------------------------------------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
+        System.out.println("|ID\t\t\t\t| PROJECT NAME\t| DESCRIPTION\t\t\t| TYPE\t| TEAM SIZE\t| BUDGET| TASKS\t| COMPLETION|");
+        System.out.println("-------------------------------------------------------------------------------------------------------------------------------------");
 
         allProjects.values().stream()
             .sorted(Comparator.comparing(Project::getName))
             .forEach(p -> {
-                System.out.printf("|%s| %s| %s| %s| %d| %d|%n",
-                p.getId(), p.getName(), p.getDescription(),
-                p.getProjectType(), p.getTeamSize(), p.getBudget());
-            System.out.println("-----------------------------------------------------------------------------------------------------------------");
+                float[] taskReport = TaskService.getTasksReport(p.getId());
+                int totalTasks = (int) taskReport[0];
+                float progress = taskReport[2];
+                System.out.printf("|%s| %s| %s| %s| %d| %d|\t%d|\t%.1f%%|%n",
+                    p.getId(), p.getName(), p.getDescription(),
+                    p.getProjectType(), p.getTeamSize(), p.getBudget(),
+                    totalTasks, progress);
+            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------");
             });
 
         if (!fromTask)
@@ -247,9 +251,12 @@ public class ProjectService {
                 if(RegexValidator.VALID_PROJECT_ID.test(choice)){
                    
                     Project foundProject = findProject(choice);
+                    float[] taskReport = TaskService.getTasksReport(foundProject.getId());
+                    int totalTasks = (int) taskReport[0];
+                    float progress = taskReport[2];
                     // Show tasks and stay in this project context for subsequent task actions
                     TaskService.filterByProject(foundProject.getId(), scanner, isRunning, foundProject.getId());
-                    ConsoleMenu.getProjectDetails(foundProject);
+                    ConsoleMenu.getProjectDetails(foundProject, totalTasks, progress);
                 }
                 System.out.println(RED + "ERROR: " + "Invalid Project ID format. Use pattern PRJ### (eg., PRJ001)" + RESET);
 
@@ -278,15 +285,17 @@ public class ProjectService {
         System.out.printf("|\t%s Projects\t|\n", projectType);
         System.out.println("==================================" + RESET + "\n\n");
 
-        long count = allProjects.values().stream()
-            .filter(p -> projectType.equals(p.getProjectType()))
-            .peek(ConsoleMenu::displayProject)
-            .count();
+        var filteredProjects = StreamService.filterProjectsByType(allProjects.values(), projectType);
         
-        if (count == 0) {
-            throw new InvalidProjectTypeException(projectType);
+        if (filteredProjects.isEmpty()) {
+            System.out.println(RED + BOLD + "No projects found of type " + projectType + "\n\n" + RESET);
+        } else {
+            filteredProjects.forEach(p -> {
+                float[] taskReport = TaskService.getTasksReport(p.getId());
+                ConsoleMenu.displayProject(p, (int) taskReport[0], taskReport[2]);
+            });
+            displayProjectDetails(scanner, isRunning);
         }
-        displayProjectDetails(scanner, isRunning);
     }
 
     /**
@@ -302,8 +311,8 @@ public class ProjectService {
             return;
         }
 
-        List<Project> inRange = allProjects.values().stream()
-            .filter(p -> p.getBudget() >= minAmount && p.getBudget() <= maxAmount)
+        List<Project> inRange = StreamService.filterProjectsByBudget(allProjects.values(), minAmount, maxAmount)
+            .stream()
             .sorted(Comparator.comparingLong(Project::getBudget))
             .collect(Collectors.toList());
 
@@ -315,7 +324,10 @@ public class ProjectService {
             System.out.println(RED + BOLD + "No projects found within budget range\n\n" + RESET);
             
         } else {
-            inRange.forEach(ConsoleMenu::displayProject);
+            inRange.forEach(p -> {
+                float[] taskReport = TaskService.getTasksReport(p.getId());
+                ConsoleMenu.displayProject(p, (int) taskReport[0], taskReport[2]);
+            });
             displayProjectDetails(scanner, isRunning);
         }
     }

@@ -1,4 +1,4 @@
-package test;
+package services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -11,14 +11,12 @@ import org.junit.jupiter.api.Test;
 import models.HardwareProject;
 import models.SoftwareProject;
 import models.Task;
-import services.ProjectService;
-import services.TaskService;
 import utils.exceptions.ProjectFullException;
 import utils.exceptions.ProjectNotFoundException;
 import utils.exceptions.TaskFullException;
 import utils.exceptions.TaskNotFoundException;
 
-public class TaskTests {
+public class TaskServiceTests {
 
     private HardwareProject hardwareProject;
     private SoftwareProject softwareProject;

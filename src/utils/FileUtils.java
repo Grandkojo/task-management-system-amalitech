@@ -22,7 +22,7 @@ import services.TaskService;
 
 public class FileUtils {
 
-    final static String fileName = "projects_data.json";
+    final static String fileName = "data/projects_data.json";
 
     public static void saveProjects() {
         Collection<Project> projects = ProjectService.getProjects();

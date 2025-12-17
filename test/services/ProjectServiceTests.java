@@ -1,20 +1,17 @@
-package test;
+package services;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-
-
 import models.HardwareProject;
 import models.SoftwareProject;
-import services.ProjectService;
 import utils.exceptions.ProjectFullException;
 import utils.exceptions.ProjectNotFoundException;
 import models.Project;
 
-public class ProjectTests {
+public class ProjectServiceTests {
 
     private Project project;
     private HardwareProject hardwareProject;

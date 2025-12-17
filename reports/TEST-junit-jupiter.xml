@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="JUnit Jupiter" tests="9" skipped="0" failures="0" errors="0" time="0.088" hostname="AMALITECH-PC-GH-PC-10702" timestamp="2025-12-08T11:24:54">
+<testsuite name="JUnit Jupiter" tests="15" skipped="0" failures="0" errors="0" time="0.144" hostname="AMALITECH-PC-GH-PC-10702" timestamp="2025-12-17T10:26:19">
 <properties>
 <property name="file.encoding" value="UTF-8"/>
 <property name="file.separator" value="/"/>
@@ -32,7 +32,7 @@
 <property name="native.encoding" value="UTF-8"/>
 <property name="os.arch" value="amd64"/>
 <property name="os.name" value="Linux"/>
-<property name="os.version" value="6.14.0-36-generic"/>
+<property name="os.version" value="6.14.0-37-generic"/>
 <property name="path.separator" value=":"/>
 <property name="stderr.encoding" value="UTF-8"/>
 <property name="stdout.encoding" value="UTF-8"/>
@@ -40,7 +40,7 @@
 <property name="sun.boot.library.path" value="/usr/lib/jvm/java-21-openjdk-amd64/lib"/>
 <property name="sun.cpu.endian" value="little"/>
 <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
-<property name="sun.java.command" value="lib/junit-platform-console-standalone-1.13.0-M3.jar --class-path bin --scan-classpath --include-classname .*Test.*|.*Tests.* --reports-dir=reports"/>
+<property name="sun.java.command" value="lib/junit-platform-console-standalone-1.13.0-M3.jar --class-path bin:lib/gson-2.13.2.jar:lib/error_prone_annotations-2.45.0.jar --scan-classpath --include-classname .*Test.*|.*Tests.* --reports-dir=reports"/>
 <property name="sun.java.launcher" value="SUN_STANDARD"/>
 <property name="sun.jnu.encoding" value="UTF-8"/>
 <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
@@ -51,58 +51,94 @@
 <property name="user.name" value="ernest-kojo-owusu-essien"/>
 <property name="user.timezone" value="Africa/Accra"/>
 </properties>
-<testcase name="validBudgetRange()" classname="test.ValidationTests" time="0.02">
+<testcase name="filterProjectsByType_returnsOnlyMatchingType()" classname="services.StreamServiceTests" time="0.001">
 <system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:validBudgetRange()]
-display-name: validBudgetRange()
+unique-id: [engine:junit-jupiter]/[class:services.StreamServiceTests]/[method:filterProjectsByType_returnsOnlyMatchingType()]
+display-name: filterProjectsByType_returnsOnlyMatchingType()
 ]]></system-out>
 </testcase>
-<testcase name="createSoftwareProjectTest()" classname="test.ProjectTests" time="0.001">
+<testcase name="projectNoFoundTest()" classname="services.ProjectServiceTests" time="0.004">
 <system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:createSoftwareProjectTest()]
-display-name: createSoftwareProjectTest()
-]]></system-out>
-</testcase>
-<testcase name="NotNegativeaBudgetRangeTest()" classname="test.ValidationTests" time="0.001">
-<system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:NotNegativeaBudgetRangeTest()]
-display-name: NotNegativeaBudgetRangeTest()
-]]></system-out>
-</testcase>
-<testcase name="taskCreatedToRightProjectTest()" classname="test.TaskTests" time="0.002">
-<system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.TaskTests]/[method:taskCreatedToRightProjectTest()]
-display-name: taskCreatedToRightProjectTest()
-]]></system-out>
-</testcase>
-<testcase name="updateTaskWithRightStatusTest()" classname="test.TaskTests" time="0.008">
-<system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.TaskTests]/[method:updateTaskWithRightStatusTest()]
-display-name: updateTaskWithRightStatusTest()
-]]></system-out>
-</testcase>
-<testcase name="createHardwareProjectTest()" classname="test.ProjectTests" time="0.001">
-<system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:createHardwareProjectTest()]
-display-name: createHardwareProjectTest()
-]]></system-out>
-</testcase>
-<testcase name="createTaskTest()" classname="test.TaskTests" time="0.003">
-<system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.TaskTests]/[method:createTaskTest()]
-display-name: createTaskTest()
-]]></system-out>
-</testcase>
-<testcase name="projectNoFoundTest()" classname="test.ProjectTests" time="0.001">
-<system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.ProjectTests]/[method:projectNoFoundTest()]
+unique-id: [engine:junit-jupiter]/[class:services.ProjectServiceTests]/[method:projectNoFoundTest()]
 display-name: projectNoFoundTest()
 ]]></system-out>
 </testcase>
-<testcase name="GreaterThanZeroBudgetRangeTest()" classname="test.ValidationTests" time="0.001">
+<testcase name="loadProjects_whenFileMissing_doesNotThrow()" classname="utils.FileUtilsTests" time="0.051">
 <system-out><![CDATA[
-unique-id: [engine:junit-jupiter]/[class:test.ValidationTests]/[method:GreaterThanZeroBudgetRangeTest()]
+unique-id: [engine:junit-jupiter]/[class:utils.FileUtilsTests]/[method:loadProjects_whenFileMissing_doesNotThrow()]
+display-name: loadProjects_whenFileMissing_doesNotThrow()
+]]></system-out>
+</testcase>
+<testcase name="createSoftwareProjectTest()" classname="services.ProjectServiceTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:services.ProjectServiceTests]/[method:createSoftwareProjectTest()]
+display-name: createSoftwareProjectTest()
+]]></system-out>
+</testcase>
+<testcase name="NotNegativeaBudgetRangeTest()" classname="utils.ValidationUtilsTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:utils.ValidationUtilsTests]/[method:NotNegativeaBudgetRangeTest()]
+display-name: NotNegativeaBudgetRangeTest()
+]]></system-out>
+</testcase>
+<testcase name="createTaskTest()" classname="services.TaskServiceTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:services.TaskServiceTests]/[method:createTaskTest()]
+display-name: createTaskTest()
+]]></system-out>
+</testcase>
+<testcase name="taskCreatedToRightProjectTest()" classname="services.TaskServiceTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:services.TaskServiceTests]/[method:taskCreatedToRightProjectTest()]
+display-name: taskCreatedToRightProjectTest()
+]]></system-out>
+</testcase>
+<testcase name="loadProjects_populatesServicesFromSavedFile()" classname="utils.FileUtilsTests" time="0.03">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:utils.FileUtilsTests]/[method:loadProjects_populatesServicesFromSavedFile()]
+display-name: loadProjects_populatesServicesFromSavedFile()
+]]></system-out>
+</testcase>
+<testcase name="updateTaskWithRightStatusTest()" classname="services.TaskServiceTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:services.TaskServiceTests]/[method:updateTaskWithRightStatusTest()]
+display-name: updateTaskWithRightStatusTest()
+]]></system-out>
+</testcase>
+<testcase name="filterTasks_filtersByProjectAndPredicate()" classname="services.StreamServiceTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:services.StreamServiceTests]/[method:filterTasks_filtersByProjectAndPredicate()]
+display-name: filterTasks_filtersByProjectAndPredicate()
+]]></system-out>
+</testcase>
+<testcase name="createHardwareProjectTest()" classname="services.ProjectServiceTests" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:services.ProjectServiceTests]/[method:createHardwareProjectTest()]
+display-name: createHardwareProjectTest()
+]]></system-out>
+</testcase>
+<testcase name="saveProjects_writesNonEmptyJsonFile()" classname="utils.FileUtilsTests" time="0.002">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:utils.FileUtilsTests]/[method:saveProjects_writesNonEmptyJsonFile()]
+display-name: saveProjects_writesNonEmptyJsonFile()
+]]></system-out>
+</testcase>
+<testcase name="validBudgetRange()" classname="utils.ValidationUtilsTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:utils.ValidationUtilsTests]/[method:validBudgetRange()]
+display-name: validBudgetRange()
+]]></system-out>
+</testcase>
+<testcase name="GreaterThanZeroBudgetRangeTest()" classname="utils.ValidationUtilsTests" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:utils.ValidationUtilsTests]/[method:GreaterThanZeroBudgetRangeTest()]
 display-name: GreaterThanZeroBudgetRangeTest()
+]]></system-out>
+</testcase>
+<testcase name="completionRate_calculatesPercentageForProject()" classname="services.StreamServiceTests" time="0.003">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:services.StreamServiceTests]/[method:completionRate_calculatesPercentageForProject()]
+display-name: completionRate_calculatesPercentageForProject()
 ]]></system-out>
 </testcase>
 <system-out><![CDATA[

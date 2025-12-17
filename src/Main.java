@@ -1,15 +1,10 @@
-
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import models.HardwareProject;
-import models.SoftwareProject;
-import models.Task;
 import models.AdminUser;
 import models.RegularUser;
 import models.User;
 import services.AuthService;
 import services.ProjectService;
-import services.TaskService;
 import utils.ConsoleMenu;
 import utils.ExitHandler;
 import utils.FileUtils;
@@ -22,40 +17,6 @@ public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
     private static boolean isRunning = true;
-
-    /**
-     * Seed the application with sample projects and tasks so menus are populated on first run.
-     */
-    public static void createBaseProjects()
-    {
-        // create 4 projects
-        SoftwareProject alphaTracker = new SoftwareProject("Alpha Tracker", "Track my tasks for this project", 15000, 5);
-        HardwareProject temperatureRecorder = new HardwareProject("Temperature Recorder", "Record the temperature of the day at 1 pm", 10000, 3);    
-        SoftwareProject clockIt = new SoftwareProject("Clock IT", "Record what employees do during the working day", 7000, 7);
-        HardwareProject automaticDoor = new HardwareProject("Smart Door", "Automatically record employees who enter offices", 12000, 10);
-        
-        //create tasks under project
-        Task alphaTrackerTask1 = Task.create("Set up DB", Task.Status.IN_PROGRESS, alphaTracker.getId());
-        Task alphaTrackerTask2 = Task.create("Create abstract tracking class", Task.Status.COMPLETED, alphaTracker.getId());            
-        Task temperatureRecorderTask1 = Task.create("Design Thermometer", Task.Status.PENDING, temperatureRecorder.getId());
-        Task clockItTask1 = Task.create("Create date filter", Task.Status.IN_PROGRESS, clockIt.getId());
-        Task automaticDoorTask = Task.create("Research in to strong doors", Task.Status.PENDING, automaticDoor.getId());
-
-        ProjectService.addProjectToStorage(alphaTracker);
-        ProjectService.addProjectToStorage(temperatureRecorder);
-        ProjectService.addProjectToStorage(clockIt);
-        ProjectService.addProjectToStorage(automaticDoor);
-
-        TaskService.addTaskToStorage(automaticDoorTask);
-        TaskService.addTaskToStorage(alphaTrackerTask1);
-        TaskService.addTaskToStorage(alphaTrackerTask2);
-        TaskService.addTaskToStorage(temperatureRecorderTask1);
-        TaskService.addTaskToStorage(clockItTask1);            
-
-
-
-
-    }
 
     /**
      * Print the currently logged-in user and their role.
@@ -82,10 +43,9 @@ public class Main {
         // Default logged-in user (can be switched via User Panel)
         AuthService.login(admin);
 
+        FileUtils.loadProjects();
         while (isRunning) {
             try {
-                // createBaseProjects();
-                FileUtils.loadProjects();
                 ConsoleMenu.displayHeader();
                 displayCurrentUser();
                 ConsoleMenu.displayMainMenu();

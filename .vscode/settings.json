@@ -1,7 +1,12 @@
 {
-    "java.project.sourcePaths": ["src"],
+    "java.project.sourcePaths": [
+        "src",
+        "test"
+    ],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
-        "lib/**/*.jar"
+        "/home/ernest-kojo-owusu-essien/Documents/Amalitech/task-management-system-amalitech/lib/gson-2.13.2.jar",
+        "/home/ernest-kojo-owusu-essien/Documents/Amalitech/task-management-system-amalitech/lib/junit-platform-console-standalone-1.13.0-M3.jar",
+        "/home/ernest-kojo-owusu-essien/Documents/Amalitech/task-management-system-amalitech/lib/error_prone_annotations-2.45.0.jar"
     ]
 }

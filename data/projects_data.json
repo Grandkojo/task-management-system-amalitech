@@ -1,0 +1,19 @@
+[
+  {
+    "_type": "Software",
+    "id": "PRJ002",
+    "name": "Test Project",
+    "description": "For FileUtils save",
+    "budget": 1000,
+    "teamSize": 3,
+    "projectType": "Software",
+    "tasks": [
+      {
+        "id": "TSK002",
+        "projectId": "PRJ002",
+        "name": "Initial Task",
+        "status": "PENDING"
+      }
+    ]
+  }
+]

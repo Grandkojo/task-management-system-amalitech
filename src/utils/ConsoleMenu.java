@@ -116,14 +116,15 @@ public class ConsoleMenu {
         System.out.println("\n==============================================================================\n\n");   
     }
 
-    public static void getProjectDetails(Project p){
+    public static void getProjectDetails(Project p, int totalTasks, float completion) {
 
-        System.out.printf("Project Name: %s%nDescription: %s%nType: %s%nTeam Size: %d%nBudget: $%d%n%n",
-            p.getName(), p.getDescription(), p.getProjectType(), p.getTeamSize(), p.getBudget());   
+        System.out.printf("Project Name: %s%nDescription: %s%nType: %s%nTeam Size: %d%nBudget: $%d%nTasks: %d%nCompletion: %.1f%%%n%n",
+            p.getName(), p.getDescription(), p.getProjectType(), p.getTeamSize(), p.getBudget(), totalTasks, completion);   
     }
 
-    public static void displayProject(Project p){
-        System.out.printf("Project ID: %s%nName %s%nType: %s%nBudget: %d%n%n", p.getId(), p.getName(), p.getProjectType(), p.getBudget());
+    public static void displayProject(Project p, int totalTasks, float completion){
+        System.out.printf("Project ID: %s%nName %s%nType: %s%nBudget: %d%nTasks: %d%nCompletion: %.1f%%%n%n",
+            p.getId(), p.getName(), p.getProjectType(), p.getBudget(), totalTasks, completion);
     }
 
     public static void displayConcurrentTaskSimulationHeader(){

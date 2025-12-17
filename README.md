@@ -7,9 +7,11 @@ It was built as a gradual improvement project to deepen my understanding of Java
 
 - Exception handling with custom, domain-focused exceptions (invalid input, not found, storage full).
 - SOLID-minded refactors: clearer responsibilities across services/models, better validation and flow control.
-- In-memory data using arrays (no external DB) to emphasize algorithmic handling and constraints.
+- In-memory data using arrays with **JSON file persistence** (via Gson) for saving and loading projects/tasks.
+- Streams, lambdas, and a dedicated `StreamService` plus `TaskFilter` functional interface for reusable queries.
+- Concurrency basics with a `ConcurrencyService` that simulates safe concurrent task updates.
 - Console UX hardening: input validation loops, role-based actions, graceful exits.
-- Preparation for testing: the design is structured for JUnit 5 basic tests on core functions.
+- Preparation for testing: structured JUnit 5 tests for core services, stream utilities, and file I/O.
 
 ### Setup
 
@@ -80,8 +82,8 @@ Completion percentage per project is calculated by `TaskService.completionRate` 
 
 #### Status Reports
 
-- The **Status Reports** option generates a simple report that summarises project progress using task completion data.
-- Reports are currently generated in memory and shown in the console.
+- The **Status Reports** option generates a report that summarises project progress using task completion data (total tasks, completed tasks, and per-project completion).
+- Reports are currently generated in memory and shown in the console using stream-based aggregations.
 
 ### Object-Oriented Design
 
@@ -116,7 +118,7 @@ IDs are guaranteed unique **within a single session** of the application. Becaus
   - Valid project types (`Software`, `Hardware`).
   - Valid budget ranges (min and max constraints).
 - Task creation validates project existence and avoids duplicate task names per project.
-- Menu handlers check for numeric input and show user-friendly error messages.
+- Menu handlers check for numeric input, reject invalid IDs via `RegexValidator`, and show user-friendly error messages with seamless re-prompts.
 
 ### UML and Design Documentation
 
@@ -137,19 +139,18 @@ IDs are guaranteed unique **within a single session** of the application. Becaus
 - How to structure console apps with clear separation of concerns (models, services, utils).
 - How to use custom exceptions to keep validation and error handling explicit.
 - How to apply polymorphism for role-based permissions and type-specific behavior.
+- How to use streams, lambdas, and functional interfaces (`TaskFilter`) to express queries cleanly.
 - How to make user input resilient with re-prompts and graceful shutdowns.
-- How to keep code testable and modular (ready for JUnit 5 basic tests).
+- How to keep code testable and modular with JUnit 5 tests for services, streams, and file utilities.
 
 ### Minimum Requirements Coverage (Summary)
 
-- Two project types implemented (`SoftwareProject`, `HardwareProject`).
-- Two user types implemented (`AdminUser`, `RegularUser`).
-- Arrays used for project and task storage.
-- Encapsulation applied to models.
-- Abstract classes and interfaces implemented.
-- Polymorphism demonstrated via users and projects.
-- Input validation implemented for project type, budget range, task status, and existence checks.
-- Completion percentage calculation working via `TaskService.completionRate`.
-- Console navigation wired through `ProjectService` and `TaskService` menus.
-
-Note: the number of sample projects created on startup is configured in `Main.createBaseProjects` and can be adjusted as needed for testing.
+- Arrays refactored to collections (`ArrayList`, `HashMap`) in services.
+- Functional programming implemented via streams, lambdas, and the `TaskFilter` functional interface.
+- Regex validation implemented for IDs using `RegexValidator` (`PRJ###`, `TSK###`).
+- File persistence working using Gson (`FileUtils.saveProjects` / `FileUtils.loadProjects`).
+- Concurrency demo implemented with threads in `ConcurrencyService.simulateConcurrentTasksUpdates`.
+- JUnit 5 tests cover stream logic (`StreamServiceTests`) and file persistence/concurrency behavior (`FileUtilsTests`, service tests).
+- Custom exceptions and proper handling used across services (invalid input, not found, storage full).
+- Clean, modular, SOLID-leaning code with clear separation between models, services, utils, and tests.
+- README and design documentation updated with diagrams, test results, and commit log snapshot.

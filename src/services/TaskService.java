@@ -12,7 +12,6 @@ import utils.RegexValidator;
 import utils.exceptions.EmptyProjectListException;
 import utils.exceptions.InvalidTaskStatusException;
 import utils.exceptions.ProjectNotFoundException;
-import utils.exceptions.TaskFullException;
 import utils.exceptions.TaskNotFoundException;
 import utils.ConsoleColors;
 import static utils.ConsoleColors.*;
@@ -30,9 +29,8 @@ public class TaskService {
     
 
     /**
-     * Store a task in the in-memory array or throw if capacity is reached.
+     * Store a task in the in-memory array
      * @param task task to store
-     * @throws TaskFullException when capacity is exceeded
      */
     public static void addTaskToStorage(Task task) {
         boolean exists = tasks.stream()

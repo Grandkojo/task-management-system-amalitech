@@ -22,7 +22,6 @@ import utils.exceptions.EmptyProjectListException;
 import utils.exceptions.InvalidBudgetRangeException;
 import utils.exceptions.InvalidInputException;
 import utils.exceptions.InvalidProjectTypeException;
-import utils.exceptions.ProjectFullException;
 import utils.exceptions.ProjectNotFoundException;
 import utils.exceptions.TaskNotFoundException;
 
@@ -32,19 +31,11 @@ import utils.exceptions.TaskNotFoundException;
  */
 public class ProjectService {
     
-    // In-memory storage for projects (fixed capacity for this exercise)
-    // private static final int MAX_PROJECTS = 20;  
-    // private static Project[] allProjects = new Project[MAX_PROJECTS]; 
     private static HashMap<String, Project> allProjects = new HashMap<>();
-
-    // private static int projectCount = 0;
-
     
-
     /**
-     * Persist a project into the in-memory store, enforcing capacity.
+     * Persist a project into the in-memory store
      * @param project project to store
-     * @throws ProjectFullException when the storage array is full
      */
     public static void addProjectToStorage(Project project) {
         allProjects.put(project.getId(), project);
@@ -125,9 +116,8 @@ public class ProjectService {
      * Interactive project creation flow with input validation and type enforcement.
      * @param scanner shared scanner for console input
      * @throws InvalidProjectTypeException when type is not Software/Hardware
-     * @throws ProjectFullException when storage is full
      */
-    public static void addProject(Scanner scanner) throws InvalidProjectTypeException, ProjectFullException {
+    public static void addProject(Scanner scanner) throws InvalidProjectTypeException {
         System.out.print(BOLD + YELLOW + "Enter project name: " + RESET);
         String pName = scanner.nextLine();
 
@@ -349,10 +339,7 @@ public class ProjectService {
                         ProjectService.addProject(scanner);
                     } catch (InvalidProjectTypeException e){
                         System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
-                    } catch (ProjectFullException e) {
-                        System.out.println(RED + "ERROR: " + e.getMessage() + RESET);
                     }
-
                     System.out.print(BOLD + CYAN + "\n\n>> Press Enter to continue... " + RESET);
                     scanner.nextLine();
                     ConsoleMenu.displayProjectHeader();
